@@ -2,11 +2,24 @@
 name = "CloudSearchMCP"
 version = "1.0.0"
 description = "统一的云端视觉搜索MCP，支持多模型配置化选择"
-default_model = "gemini_flash"
-fallback_models = ["claude_sonnet", "pixtral_12b"]
+default_model = "minimax_m1"
+fallback_models = ["gemini_flash", "claude_sonnet"]
 priority = "balanced"  # speed, cost, quality, balanced
 
 # 模型配置
+[models.minimax_m1]
+enabled = true
+model_id = "MiniMaxAI/MiniMax-M1-80k"
+api_key = "${HF_TOKEN}"
+base_url = "https://api-inference.huggingface.co"
+provider = "novita"
+max_tokens = 4000
+temperature = 0.1
+timeout = 30
+cost_per_1k_tokens = 0.00000008
+quality_score = 0.88
+speed_score = 0.92
+
 [models.gemini_flash]
 enabled = true
 model_id = "google/gemini-2.5-flash-preview"

@@ -59,6 +59,7 @@ logger = logging.getLogger("cloud_search_mcp")
 
 class CloudModel(Enum):
     """支持的云端模型"""
+    MINIMAX_M1 = "MiniMaxAI/MiniMax-M1-80k"
     GEMINI_FLASH = "google/gemini-2.5-flash-preview"
     GEMINI_PRO = "google/gemini-2.5-pro-preview"
     CLAUDE_SONNET = "anthropic/claude-3.7-sonnet"
