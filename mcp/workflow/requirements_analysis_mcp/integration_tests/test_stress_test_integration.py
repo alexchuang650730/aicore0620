@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
-AI需求分析系統壓力測試執行器
-基於PowerAutomation MCP測試框架的標準測試用例
+AI需求分析系統壓力測試集成測試
+基於PowerAutomation MCP測試框架的標準集成測試用例
 
 測試用例ID: TC001-TC007
+測試類型: 集成測試 (Integration Test)
 測試目標: 診斷系統錯誤、端口問題和僵屍進程問題
 """
 
@@ -34,10 +35,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger('StressTestCase')
 
-class PowerAutomationStressTestCase:
+class PowerAutomationStressIntegrationTest:
     """
-    PowerAutomation MCP框架標準壓力測試用例
-    符合requirements_analysis_mcp測試規範
+    PowerAutomation MCP框架標準集成測試
+    符合requirements_analysis_mcp集成測試規範
+    測試類型: Integration Test
     """
     
     def __init__(self):
@@ -618,7 +620,7 @@ class PowerAutomationStressTestCase:
 
 def main():
     """主函數"""
-    test_case = PowerAutomationStressTestCase()
+    test_case = PowerAutomationStressIntegrationTest()
     
     # 執行測試套件
     results = asyncio.run(test_case.run_test_suite())
