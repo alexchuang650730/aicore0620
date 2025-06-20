@@ -684,40 +684,74 @@ def analyze_requirement():
         return jsonify({"success": False, "error": f"分析失敗: {str(e)}"})
 
 def analyze_with_incremental_engine(requirement: str, model: str) -> Dict[str, Any]:
-    """使用增強的MCP分析引擎"""
+    """使用智能增量引擎分析需求"""
+    
     try:
-        # 優先使用增強的MCP引擎
-        from enhanced_mcp_engine import call_enhanced_mcp_engine
-        mcp_result = asyncio.run(call_enhanced_mcp_engine(requirement))
+        # 導入智能語義引擎
+        from intelligent_semantic_engine import IntelligentSemanticEngine
+        from enhanced_mcp_engine_v2 import EnhancedMCPEngine
         
-        if mcp_result.get("success"):
-            logger.info("MCP引擎分析成功，使用知識庫增強結果")
-            analysis = mcp_result.get("analysis", {})
+        # 初始化AI客戶端
+        ai_client = None
+        try:
+            from real_ai_client import RealAIClient
+            ai_client = RealAIClient()
+            logger.info("AI客戶端初始化成功")
+        except Exception as e:
+            logger.warning(f"AI客戶端初始化失敗，使用基礎分析: {e}")
+        
+        # 創建智能MCP引擎
+        mcp_engine = EnhancedMCPEngine(ai_client)
+        
+        # 執行智能分析
+        result = mcp_engine.analyze_requirement_intelligently(requirement)
+        
+        # 轉換為服務期望的格式
+        if result.get("success"):
+            analysis = result.get("analysis", {})
             return {
-                "model_used": "enhanced_mcp_engine",
+                "model_used": result.get("analysis_method", "intelligent_semantic_mcp"),
                 "analysis": analysis,
-                "confidence": analysis.get("confidence", 0.92),
+                "confidence": result.get("confidence_score", 0.85),
                 "next_steps": analysis.get("recommendations", []),
-                "analysis_method": "knowledge_based_mcp",
+                "analysis_method": result.get("analysis_method", "intelligent_semantic_mcp"),
                 "incremental_insights": {
-                    "knowledge_base_enhanced": True,
-                    "quantitative_analysis": True,
-                    "cost_benefit_included": True,
-                    "risk_assessment_included": True
+                    "semantic_understanding": True,
+                    "dynamic_analysis": True,
+                    "ai_enhanced": ai_client is not None,
+                    "intent_based": True
                 },
                 "success": True,
                 "warning": None,
-                "fallback_used": False
+                "fallback_used": False,
+                "intent_analysis": result.get("intent_understanding", {}),
+                "metadata": result.get("metadata", {})
             }
         else:
-            logger.warning("MCP引擎失敗，降級到AI API")
-            # 降級到AI API
+            logger.warning("智能分析失敗，使用備用方法")
             return call_ai_api_fallback(requirement, model)
         
     except Exception as e:
-        logger.error(f"MCP引擎調用失敗: {e}")
-        # 降級到AI API
-        return call_ai_api_fallback(requirement, model)
+        logger.error(f"智能增量引擎分析失敗: {e}")
+        
+        # 備用分析
+        return {
+            "model_used": "fallback_incremental",
+            "analysis": {
+                "complexity": "中等複雜 - 需要進一步分析",
+                "estimated_time": "3-6個月實施週期",
+                "key_insights": [
+                    "📋 需求分析：基於提供的需求進行專業分析",
+                    "🔍 建議深入調研：建議進行更詳細的現狀調研和需求分析",
+                    "📊 數據收集：建議收集更多量化數據以支持決策"
+                ],
+                "recommendations": ["建議進行詳細的現狀評估", "制定分階段實施計劃"]
+            },
+            "confidence": 0.6,
+            "success": True,
+            "error": str(e),
+            "fallback_used": True
+        }
 
 def call_ai_api_fallback(requirement: str, model: str) -> Dict[str, Any]:
     """AI API降級處理"""
