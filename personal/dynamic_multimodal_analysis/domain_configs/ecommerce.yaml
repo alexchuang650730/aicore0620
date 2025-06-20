@@ -1,0 +1,36 @@
+description: 電子商務領域
+features:
+  entities:
+  - 買家
+  - 賣家
+  - 商品
+  - 訂單
+  - 快遞
+  keywords:
+  - 電商
+  - 購物
+  - 訂單
+  - 支付
+  - 物流
+  - 庫存
+  - 客戶
+  metrics:
+  - 轉換率
+  - 客單價
+  - 復購率
+  - 庫存周轉率
+  - 滿意度
+  patterns:
+  - 購物.*流程
+  - 訂單.*管理
+  - 支付.*系統
+  - \d+%.*轉換率
+  - 庫存.*管理
+  processes:
+  - 下單流程
+  - 支付流程
+  - 物流流程
+  - 退貨流程
+  - 客服流程
+learning_enabled: true
+name: ecommerce

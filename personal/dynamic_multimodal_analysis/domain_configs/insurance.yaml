@@ -1,0 +1,40 @@
+description: 保險業務領域
+features:
+  entities:
+  - 被保險人
+  - 受益人
+  - 保險公司
+  - 代理人
+  - 核保員
+  keywords:
+  - 保險
+  - 核保
+  - 理賠
+  - 保單
+  - 承保
+  - 風險
+  - 保費
+  metrics:
+  - 保費
+  - 賠付率
+  - 承保率
+  - 風險係數
+  - 保額
+  patterns:
+  - 保險.*流程
+  - 核保.*標準
+  - 理賠.*程序
+  - \d+%.*賠付
+  - 風險.*評估
+  processes:
+  - 核保流程
+  - 理賠流程
+  - 承保流程
+  - 風險評估
+  - 保單管理
+learning_enabled: true
+name: insurance
+sub_domains:
+- life_insurance
+- property_insurance
+- health_insurance
