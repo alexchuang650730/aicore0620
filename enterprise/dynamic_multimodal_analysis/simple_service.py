@@ -662,6 +662,7 @@ def analyze_requirement():
         
         response_time = int((time.time() - start_time) * 1000)
         
+        # 在HTTP服務中添加警告信息的處理
         result = {
             "success": True,
             "requirement": requirement,
@@ -673,6 +674,13 @@ def analyze_requirement():
             "incremental_insights": analysis_result.get("incremental_insights", {})
         }
         
+        # 添加API調用警告信息
+        if analysis_result.get("warning"):
+            result["warning"] = analysis_result["warning"]
+        
+        if analysis_result.get("fallback_used"):
+            result["fallback_used"] = True
+            
         return jsonify(result)
         
     except Exception as e:
@@ -696,7 +704,9 @@ def analyze_with_incremental_engine(requirement: str, model: str) -> Dict[str, A
             "next_steps": result.get("analysis", {}).get("recommendations", []),
             "analysis_method": result.get("analysis_method", "dynamic"),
             "incremental_insights": result.get("incremental_insights", {}),
-            "success": result.get("success", True)
+            "success": result.get("success", True),
+            "warning": result.get("warning"),  # 傳遞警告信息
+            "fallback_used": result.get("fallback_used", False)  # 傳遞降級標記
         }
         
     except Exception as e:
@@ -1261,8 +1271,8 @@ def allowed_file(filename):
 def secure_filename(filename):
     """安全的文件名處理"""
     import re
-    # 修復正則表達式：將 \s- 改為 \s\-
-    filename = re.sub(r'[^\w\s\-.]', '', filename).strip()
+    # 修復正則表達式：正確的字符類寫法
+    filename = re.sub(r'[^\w\s.\-]', '', filename).strip()
     return filename
 
 if __name__ == '__main__':

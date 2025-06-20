@@ -147,11 +147,11 @@ class DynamicAnalysisEngine:
         """分類實體"""
         # 根據詞性和領域知識分類實體
         if pos_tag in ['n', 'nr', 'ns', 'nt', 'nz']:  # 名詞類
-            if domain in self.domain_knowledge:
-                domain_config = self.domain_knowledge[domain]
-                if word in domain_config["processes"]:
+            domain_features = self.domain_knowledge.get_domain_features(domain)
+            if domain_features:
+                if word in domain_features.processes:
                     return RequirementEntity("process", word, 0.9, "")
-                elif word in domain_config["metrics"]:
+                elif word in domain_features.metrics:
                     return RequirementEntity("metric", word, 0.8, "")
         
         # 動詞通常表示動作或流程
@@ -303,16 +303,40 @@ class DynamicAnalysisEngine:
             try:
                 self.logger.info(f"嘗試使用模型: {model}")
                 result = await self._call_model(model, requirement, context)
-                if result and result.get("success", False):
+                
+                # 檢查API調用是否成功
+                if result and result.get("analysis"):
+                    # 成功調用，返回結果
                     result["model_used"] = model
+                    result["api_success"] = True
+                    result["success"] = True
                     return result
+                else:
+                    # API調用失敗，記錄警告並嘗試下一個模型
+                    warning_msg = f"⚠️ {model.upper()} API調用失敗: {result.get('error', '未知錯誤')}"
+                    self.logger.warning(warning_msg)
+                    
+                    # 如果這是最後一個模型，保存警告信息
+                    if model == models_to_try[-1]:
+                        last_warning = result.get("warning", warning_msg)
+                    continue
                     
             except Exception as e:
                 self.logger.warning(f"模型 {model} 分析失敗: {e}")
                 continue
         
-        # 所有模型都失敗，使用本地分析
-        return self._local_analysis(requirement, context)
+        # 所有模型都失敗，返回帶警告的本地分析
+        fallback_result = self._local_analysis(requirement, context)
+        
+        # 添加最後一個API的警告信息
+        if 'last_warning' in locals():
+            fallback_result["warning"] = last_warning
+        else:
+            fallback_result["warning"] = "⚠️ 所有外部API調用失敗，使用本地分析"
+            
+        fallback_result["fallback_used"] = True
+        fallback_result["model_used"] = f"{preferred_model}_fallback"
+        return fallback_result
     
     def _get_model_sequence(self, preferred_model: str) -> List[str]:
         """獲取模型嘗試序列"""
@@ -592,7 +616,7 @@ class DynamicAnalysisEngine:
         try:
             # 這裡可以實現真正的Gemini API調用
             # 暫時返回模擬結果
-            logger.info("Gemini Flash API調用（模擬）")
+            self.logger.info("Gemini Flash API調用（模擬）")
             return {
                 "complexity": "中等",
                 "estimated_time": "2-4週",
@@ -608,13 +632,13 @@ class DynamicAnalysisEngine:
                 ]
             }
         except Exception as e:
-            logger.error(f"Gemini Flash調用異常: {e}")
+            self.logger.error(f"Gemini Flash調用異常: {e}")
             return {"success": False, "error": f"Gemini調用異常: {str(e)}"}
     
     async def _call_claude_sonnet(self, requirement: str, context: AnalysisContext) -> Dict[str, Any]:
-        """調用Claude Sonnet進行深度分析"""
+        """調用Claude Sonnet（真實API調用）"""
         try:
-            from real_claude_client import call_claude_api
+            from real_ai_client import call_claude_api
             
             # 構建上下文信息
             claude_context = {
@@ -628,45 +652,128 @@ class DynamicAnalysisEngine:
             result = await call_claude_api(requirement, claude_context)
             
             if result.get("success"):
-                logger.info("Claude Sonnet分析成功")
-                return result["analysis"]
+                self.logger.info("Claude Sonnet分析成功")
+                return {
+                    "analysis": result["analysis"],
+                    "success": True,
+                    "confidence": 0.8,
+                    "method": "claude_api"
+                }
             else:
-                logger.warning(f"Claude Sonnet調用失敗: {result.get('error')}")
-                return {"success": False, "error": result.get("error")}
+                self.logger.warning(f"Claude Sonnet調用失敗: {result.get('error')}")
+                return {
+                    "success": False, 
+                    "error": result.get("error"),
+                    "warning": result.get("warning")
+                }
                 
         except Exception as e:
-            logger.error(f"Claude Sonnet調用異常: {e}")
+            self.logger.error(f"Claude Sonnet調用異常: {e}")
             return {"success": False, "error": f"Claude調用異常: {str(e)}"}
     
     async def _call_gemini_flash(self, requirement: str, context: AnalysisContext) -> Dict[str, Any]:
-        """調用Gemini Flash（實現真實API調用）"""
+        """調用Gemini Flash（真實API調用）"""
         try:
-            # 這裡可以實現真正的Gemini API調用
-            # 暫時返回模擬結果
-            logger.info("Gemini Flash API調用（模擬）")
-            return {
-                "complexity": "中等",
-                "estimated_time": "2-4週",
-                "key_insights": [
-                    "基於Gemini Flash的快速分析",
-                    "需要進一步深入研究"
-                ],
-                "recommendations": [
-                    "建議使用更強大的模型進行深度分析"
-                ],
-                "questions": [
-                    "需要更詳細的技術規格嗎？"
-                ]
-            }
+            import google.generativeai as genai
+            import os
+            
+            # 配置API密鑰
+            api_key = os.environ.get('GEMINI_API_KEY')
+            if not api_key:
+                self.logger.error("GEMINI_API_KEY未設置")
+                return {"success": False, "error": "GEMINI_API_KEY未設置"}
+            
+            genai.configure(api_key=api_key)
+            model = genai.GenerativeModel('gemini-2.0-flash-exp')
+            
+            # 構建專業的分析提示
+            prompt = f"""
+作為專業的業務分析師，請深入分析以下需求：
+
+需求描述：{requirement}
+
+請從以下維度進行分析：
+
+1. 複雜度評估（簡單/中等/複雜/高度複雜）
+2. 預估實施時間
+3. 關鍵洞察和發現
+4. 具體建議
+5. 需要澄清的問題
+
+特別針對保險業務，請考慮：
+- 人力資源配置
+- 自動化程度
+- OCR技術應用
+- 業界標準對比
+- 成本效益分析
+
+請以JSON格式回應，包含以下字段：
+{{
+    "complexity": "複雜度評估",
+    "estimated_time": "預估時間",
+    "key_insights": ["洞察1", "洞察2"],
+    "recommendations": ["建議1", "建議2"],
+    "questions": ["問題1", "問題2"]
+}}
+"""
+            
+            self.logger.info("正在調用Gemini Flash API...")
+            response = model.generate_content(prompt)
+            
+            if response and response.text:
+                # 嘗試解析JSON回應
+                try:
+                    import json
+                    # 提取JSON部分
+                    text = response.text.strip()
+                    if "```json" in text:
+                        json_start = text.find("```json") + 7
+                        json_end = text.find("```", json_start)
+                        json_text = text[json_start:json_end].strip()
+                    elif "{" in text and "}" in text:
+                        json_start = text.find("{")
+                        json_end = text.rfind("}") + 1
+                        json_text = text[json_start:json_end]
+                    else:
+                        json_text = text
+                    
+                    result = json.loads(json_text)
+                    self.logger.info(f"Gemini Flash分析成功: {result}")
+                    # 確保返回正確的格式
+                    return {
+                        "analysis": result,
+                        "success": True,
+                        "confidence": 0.8,
+                        "method": "gemini_api"
+                    }
+                    
+                except json.JSONDecodeError:
+                    # 如果JSON解析失敗，返回文本分析
+                    self.logger.warning("JSON解析失敗，返回文本分析")
+                    return {
+                        "analysis": {
+                            "complexity": "中等",
+                            "estimated_time": "需要進一步評估",
+                            "key_insights": [response.text[:200] + "..."],
+                            "recommendations": ["基於Gemini分析的建議"],
+                            "questions": ["需要更詳細的信息嗎？"]
+                        },
+                        "success": True,
+                        "confidence": 0.6,
+                        "method": "gemini_text_fallback"
+                    }
+            else:
+                return {"success": False, "error": "Gemini API無回應"}
+                
         except Exception as e:
-            logger.error(f"Gemini Flash調用異常: {e}")
+            self.logger.error(f"Gemini Flash調用異常: {e}")
             return {"success": False, "error": f"Gemini調用異常: {str(e)}"}
     
     async def _call_gemini_pro(self, requirement: str, context: AnalysisContext) -> Dict[str, Any]:
         """調用Gemini Pro（實現真實API調用）"""
         try:
             # 這裡可以實現真正的Gemini Pro API調用
-            logger.info("Gemini Pro API調用（模擬）")
+            self.logger.info("Gemini Pro API調用（模擬）")
             return {
                 "complexity": "複雜",
                 "estimated_time": "4-8週",
@@ -692,6 +799,6 @@ class DynamicAnalysisEngine:
                 ]
             }
         except Exception as e:
-            logger.error(f"Gemini Pro調用異常: {e}")
+            self.logger.error(f"Gemini Pro調用異常: {e}")
             return {"success": False, "error": f"Gemini調用異常: {str(e)}"}
 
