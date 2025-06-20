@@ -1,0 +1,28 @@
+# AICore0620 統一依賴管理
+# 純AI驅動系統核心依賴
+
+# Web框架
+flask
+flask-cors
+
+# 異步處理
+asyncio
+
+# HTTP請求
+requests
+
+# HTML解析
+beautifulsoup4
+lxml
+
+# 文件處理
+python-multipart
+
+# 數據處理
+pandas
+numpy
+
+# 其他常用依賴
+python-dotenv
+pyyaml
+
