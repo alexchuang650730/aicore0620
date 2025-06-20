@@ -56,7 +56,7 @@ class PureAICodingWorkflowMCP:
                 'name': '性能分析MCP',
                 'url': 'http://localhost:8312',
                 'capabilities': ['性能分析', '瓶頸識別', '優化建議', '資源使用評估'],
-                'ai_description': '專業的性能分析能力，適合性能優化和瓶頸識別需求',
+                'ai_description': '專業的性能分析能力，適合性能優化和瓶頸識別需求，在編碼階段提供即時性能反饋',
                 'type': 'analyzer',
                 'status': 'unknown'
             },
@@ -64,15 +64,7 @@ class PureAICodingWorkflowMCP:
                 'name': '安全審計MCP',
                 'url': 'http://localhost:8313',
                 'capabilities': ['安全漏洞檢測', '安全最佳實踐', '風險評估', '合規檢查'],
-                'ai_description': '專業的安全分析能力，適合安全審計和風險評估需求',
-                'type': 'analyzer',
-                'status': 'unknown'
-            },
-            'testing_strategy_mcp': {
-                'name': '測試策略MCP',
-                'url': 'http://localhost:8314',
-                'capabilities': ['測試策略制定', '測試覆蓋分析', '質量保證', '測試自動化'],
-                'ai_description': '專業的測試策略制定能力，適合測試規劃和質量保證需求',
+                'ai_description': '專業的安全審計能力，適合安全檢查和風險評估需求',
                 'type': 'analyzer',
                 'status': 'unknown'
             },
@@ -163,6 +155,9 @@ class PureAICodingWorkflowMCP:
 - 解決技術問題、實現功能 → 必須包含kilocode_mcp
 - 代碼生成、原型開發 → 必須包含kilocode_mcp
 - 現有代碼分析、審查 → 選擇相應的analyzer組件
+- 性能優化需求 → 包含performance_analysis_mcp（編碼階段性能反饋）
+
+注意：測試策略相關需求應轉向Test Management Workflow處理
 
 請選擇2-4個最適合的組件，並詳細說明選擇理由和預期貢獻。
 """
@@ -303,14 +298,14 @@ class PureAICodingWorkflowMCP:
                 'selection_reasons': {
                     'code_quality_mcp': '代碼質量是編碼需求的核心關注點，需要全面的質量評估',
                     'architecture_design_mcp': '架構設計分析有助於評估系統設計的合理性和可擴展性',
-                    'performance_analysis_mcp': '性能分析確保代碼在生產環境中的高效運行'
+                    'performance_analysis_mcp': '性能分析在編碼階段提供即時反饋，與架構設計緊密配合'
                 },
                 'expected_contributions': {
-                    'code_quality_mcp': '提供詳細的代碼質量評估和改進建議',
-                    'architecture_design_mcp': '評估架構設計的合理性和最佳實踐',
-                    'performance_analysis_mcp': '識別性能瓶頸和優化機會'
+                    'code_quality_mcp': '提供代碼質量評估、規範檢查和改進建議',
+                    'architecture_design_mcp': '評估架構設計質量、模式識別和技術選型建議',
+                    'performance_analysis_mcp': '識別性能瓶頸、優化建議，確保編碼階段的性能考量'
                 },
-                'confidence': 0.87
+                'confidence': 0.90
             }
         elif '策略' in prompt or 'strategy' in prompt.lower():
             return {
