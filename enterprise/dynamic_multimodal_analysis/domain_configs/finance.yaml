@@ -1,0 +1,36 @@
+description: 金融服務領域
+features:
+  entities:
+  - 借款人
+  - 投資者
+  - 銀行
+  - 監管機構
+  - 評級機構
+  keywords:
+  - 金融
+  - 銀行
+  - 貸款
+  - 投資
+  - 風控
+  - 合規
+  - 資金
+  metrics:
+  - 利率
+  - 風險係數
+  - 資本充足率
+  - 不良率
+  - 收益率
+  patterns:
+  - 風險.*控制
+  - 合規.*要求
+  - 資金.*管理
+  - \d+%.*利率
+  - 信用.*評估
+  processes:
+  - 放貸流程
+  - 風控流程
+  - 合規流程
+  - 投資流程
+  - 清算流程
+learning_enabled: true
+name: finance

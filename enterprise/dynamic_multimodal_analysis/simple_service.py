@@ -9,6 +9,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import time
 import json
+import asyncio
 from typing import Dict, Any, List
 import logging
 
@@ -397,20 +398,118 @@ def home():
                             <h4>📄 文檔分析結果</h4>
                             <p><strong>文件名：</strong>${data.file_name || '未知'}</p>
                             <p><strong>文檔類型：</strong>${data.document_type || '未知'}</p>
+                            <p><strong>文件大小：</strong>${data.file_size || '未知'}</p>
+                            <p><strong>字數：</strong>${data.document_analysis.word_count || '未知'}字</p>
                             <p><strong>內容摘要：</strong>${data.document_analysis.summary || '無摘要'}</p>
                         </div>
                     `;
                     
-                    if (data.document_analysis.key_points) {
+                    // 顯示文檔結構信息
+                    if (data.document_analysis.document_structure) {
+                        const structure = data.document_analysis.document_structure;
                         html += `
                             <div style="margin-bottom: 20px;">
-                                <h4>🔑 關鍵要點</h4>
-                                <div class="feature-list">
+                                <h4>📊 文檔結構分析</h4>
+                                <div style="background: #f5f5f5; padding: 12px; border-radius: 4px;">
+                                    <p><strong>總行數：</strong>${structure.總行數 || 0}</p>
+                                    <p><strong>有效內容行數：</strong>${structure.有效內容行數 || 0}</p>
+                                    <p><strong>章節數量：</strong>${structure.章節數量 || 0}</p>
+                                    <p><strong>檢測到表格：</strong>${structure.檢測到表格 || 0}個</p>
+                                    <p><strong>檢測到列表：</strong>${structure.檢測到列表 || 0}個</p>
+                                </div>
+                            </div>
                         `;
-                        data.document_analysis.key_points.forEach(point => {
-                            html += `<div class="feature-item">${point}</div>`;
-                        });
-                        html += `</div></div>`;
+                    }
+                    
+                    // 顯示提取的關鍵數據
+                    if (data.document_analysis.extracted_data) {
+                        const extracted = data.document_analysis.extracted_data;
+                        html += `
+                            <div style="margin-bottom: 20px;">
+                                <h4>🔍 提取的關鍵信息</h4>
+                        `;
+                        
+                        if (extracted.重要數據 && extracted.重要數據.length > 0) {
+                            html += `
+                                <div style="margin-bottom: 10px;">
+                                    <strong>重要數據：</strong>
+                                    <div style="background: #e8f5e8; padding: 8px; border-radius: 4px; margin-top: 5px;">
+                                        ${extracted.重要數據.join(', ')}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        if (extracted.核心流程 && extracted.核心流程.length > 0) {
+                            html += `
+                                <div style="margin-bottom: 10px;">
+                                    <strong>核心流程：</strong>
+                                    <div style="background: #fff3e0; padding: 8px; border-radius: 4px; margin-top: 5px;">
+                            `;
+                            extracted.核心流程.forEach(process => {
+                                html += `<div style="margin-bottom: 5px;">• ${process}</div>`;
+                            });
+                            html += `</div></div>`;
+                        }
+                        
+                        html += `</div>`;
+                    }
+                    
+                    // 顯示專業分析結果
+                    if (data.document_analysis.professional_analysis) {
+                        const analysis = data.document_analysis.professional_analysis;
+                        html += `
+                            <div style="margin-bottom: 20px;">
+                                <h4>🎯 專業分析結果</h4>
+                                <div style="background: #f0f8ff; padding: 12px; border-radius: 4px;">
+                                    <p><strong>複雜度：</strong>${analysis.complexity || '未評估'}</p>
+                                    <p><strong>預估時間：</strong>${analysis.estimated_time || '未評估'}</p>
+                                    <p><strong>分析方法：</strong>${data.document_analysis.analysis_method || '動態分析引擎'}</p>
+                                    <p><strong>置信度：</strong>${Math.round((data.document_analysis.confidence || 0) * 100)}%</p>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // 顯示關鍵洞察
+                        if (analysis.key_insights && analysis.key_insights.length > 0) {
+                            html += `
+                                <div style="margin-bottom: 20px;">
+                                    <h4>💡 關鍵洞察</h4>
+                                    <div class="feature-list">
+                            `;
+                            analysis.key_insights.forEach(insight => {
+                                html += `<div class="feature-item">${insight}</div>`;
+                            });
+                            html += `</div></div>`;
+                        }
+                        
+                        // 顯示建議
+                        if (analysis.recommendations && analysis.recommendations.length > 0) {
+                            html += `
+                                <div style="margin-bottom: 20px;">
+                                    <h4>📋 專業建議</h4>
+                                    <div class="steps-list">
+                            `;
+                            analysis.recommendations.forEach((rec, index) => {
+                                html += `<div class="step-item">${index + 1}. ${rec}</div>`;
+                            });
+                            html += `</div></div>`;
+                        }
+                    }
+                    
+                    // 顯示增量引擎洞察
+                    if (data.document_analysis.incremental_insights) {
+                        const incremental = data.document_analysis.incremental_insights;
+                        html += `
+                            <div style="margin-bottom: 20px;">
+                                <h4>🚀 增量引擎優化</h4>
+                                <div style="background: #f3e5f5; padding: 12px; border-radius: 4px;">
+                                    <p><strong>分析改進：</strong>${incremental.analysis_improvements || 0}項</p>
+                                    <p><strong>信心度提升：</strong>${Math.round((incremental.confidence_boost || 0) * 100)}%</p>
+                                    <p><strong>整體風險：</strong>${Math.round((incremental.risk_factors?.overall_risk || 0) * 100)}%</p>
+                                </div>
+                            </div>
+                        `;
                     }
                     
                     responseContent.innerHTML = html;
@@ -432,9 +531,15 @@ def home():
                             <div class="feature-list">
                     `;
                     
-                    analysis.key_features.forEach(feature => {
-                        html += `<div class="feature-item">${feature}</div>`;
-                    });
+                    // 安全檢查 key_features 或 key_insights 是否存在
+                    const features = analysis.key_features || analysis.key_insights || [];
+                    if (Array.isArray(features)) {
+                        features.forEach(feature => {
+                            html += `<div class="feature-item">${feature}</div>`;
+                        });
+                    } else {
+                        html += `<div class="feature-item">暫無核心功能信息</div>`;
+                    }
                     
                     html += `
                             </div>
@@ -445,9 +550,14 @@ def home():
                             <div class="question-list">
                     `;
                     
-                    analysis.questions.forEach((question, index) => {
-                        html += `<div class="question-item">${index + 1}. ${question}</div>`;
-                    });
+                    // 安全檢查 questions 是否存在
+                    if (analysis.questions && Array.isArray(analysis.questions)) {
+                        analysis.questions.forEach((question, index) => {
+                            html += `<div class="question-item">${index + 1}. ${question}</div>`;
+                        });
+                    } else {
+                        html += `<div class="question-item">暫無需要澄清的問題</div>`;
+                    }
                     
                     html += `
                             </div>
@@ -458,9 +568,14 @@ def home():
                             <div class="steps-list">
                     `;
                     
-                    data.next_steps.forEach((step, index) => {
-                        html += `<div class="step-item">${index + 1}. ${step}</div>`;
-                    });
+                    // 安全檢查 next_steps 是否存在
+                    if (data.next_steps && Array.isArray(data.next_steps)) {
+                        data.next_steps.forEach((step, index) => {
+                            html += `<div class="step-item">${index + 1}. ${step}</div>`;
+                        });
+                    } else {
+                        html += `<div class="step-item">暫無建議步驟</div>`;
+                    }
                     
                     html += `
                             </div>
@@ -805,7 +920,7 @@ def analyze_with_minimax_fallback(requirement):
             "complexity": "中等",
             "estimated_time": "2-4週",
             "key_features": ["MiniMax風格分析", "中文優化", "快速響應"],
-            "questions": ["需要更詳細的功能說明嗎？", "有特定的技術要求嗎？"]
+            "questions": ["需要更詳細的功能說明嗎？", "有特定的技術要求嗎？"]  # 添加questions字段
         },
         "confidence": 0.75,
         "next_steps": ["需求細化", "技術評估", "原型開發"]
@@ -818,7 +933,8 @@ def analyze_with_fallback(requirement: str, model: str) -> Dict[str, Any]:
         "analysis": {
             "complexity": "中等",
             "estimated_time": "2-4週",
-            "key_features": ["基本功能分析", "需求理解", "初步評估"]
+            "key_features": ["基本功能分析", "需求理解", "初步評估"],
+            "questions": ["需要更詳細的功能說明嗎？", "有特定的技術要求嗎？"]  # 添加questions字段
         },
         "confidence": 0.6,
         "next_steps": ["詳細需求澄清", "技術可行性評估"]
