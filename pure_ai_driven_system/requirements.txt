@@ -1,0 +1,8 @@
+flask
+flask-cors
+asyncio
+requests
+beautifulsoup4
+lxml
+python-multipart
+
