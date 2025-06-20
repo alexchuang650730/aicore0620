@@ -245,7 +245,7 @@ def extract_key_information(content: str) -> Dict[str, Any]:
             description = f"處理效率: {percent}"
         else:
             # 提取最相關的詞彙
-            key_words = re.findall(r'[核保|審核|處理|作業|效率|比率|準確|自動]', context_before + context_after)
+            key_words = re.findall(r'核保|審核|處理|作業|效率|比率|準確|自動', context_before + context_after)
             if key_words:
                 description = f"{key_words[0]}相關: {percent}"
             else:
