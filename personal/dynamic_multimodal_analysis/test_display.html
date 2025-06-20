@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文檔分析測試頁面</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .result-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .feature-item, .step-item { margin: 5px 0; padding: 8px; background: #f5f5f5; border-radius: 3px; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        #result { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📄 文檔分析測試頁面</h1>
+        
+        <button onclick="testDocumentAnalysis()">測試文檔分析顯示</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // 模擬完整的文檔分析數據
+        const mockData = {
+            "document_analysis": {
+                "analysis_method": "動態分析引擎",
+                "complexity": "高度複雜",
+                "confidence": 0.7,
+                "content_type": "保險業務文檔",
+                "document_structure": {
+                    "總行數": 2765,
+                    "有效內容行數": 1906,
+                    "章節數量": 14,
+                    "檢測到表格": 0,
+                    "檢測到列表": 0
+                },
+                "extracted_data": {
+                    "重要數據": ["90%", "80%", "35%", "28%", "31.5%", "2%", "1.6%", "1.8%", "8%", "6.4%"],
+                    "核心流程": [
+                        "核保處理制度及程序",
+                        "承保相關作業流程",
+                        "風險管理指標設定",
+                        "分層負責授權額度",
+                        "財務核保機制"
+                    ]
+                },
+                "incremental_insights": {
+                    "analysis_improvements": 1,
+                    "confidence_boost": 0.324,
+                    "risk_factors": {
+                        "business_risk": 0.0,
+                        "integration_risk": 0.0,
+                        "overall_risk": 0.0,
+                        "technical_risk": 0.0,
+                        "timeline_risk": 0.0
+                    }
+                },
+                "key_points": [
+                    "時間約束：113年",
+                    "保險業務需要重點關注合規性和風險控制"
+                ],
+                "professional_analysis": {
+                    "complexity": "高度複雜",
+                    "estimated_time": "基於需求分析：113年",
+                    "key_insights": [
+                        "時間約束：113年",
+                        "保險業務需要重點關注合規性和風險控制"
+                    ],
+                    "questions": [
+                        "需要多少人力資源？",
+                        "具體的業務流程是什麼？",
+                        "現有系統的自動化程度如何？"
+                    ],
+                    "recommendations": [
+                        "建議分階段實施，降低項目風險",
+                        "進行現有流程的自動化可行性評估",
+                        "制定詳細的投資回報率計算"
+                    ],
+                    "specific_analysis": {
+                        "時間分析": "時間要求：113年"
+                    }
+                },
+                "summary": "臺銀人壽保單行政作業業務文檔專業分析 - DOC格式",
+                "word_count": 87343
+            },
+            "document_type": "DOC",
+            "file_name": "臺銀人壽保單行政作業業務-113年3月版1.doc",
+            "file_size": "4.29 MB",
+            "success": true,
+            "response_time": 1500
+        };
+
+        function testDocumentAnalysis() {
+            displayAnalysisResult(mockData, 'minimax');
+        }
+
+        function displayAnalysisResult(data, selectedModel) {
+            const responseContent = document.getElementById('result');
+            
+            // 添加模型信息
+            const modelInfo = `<div style="background: #e3f2fd; padding: 8px 12px; border-radius: 4px; margin-bottom: 15px; font-size: 12px; color: #1976d2;">
+                🤖 使用模型: ${selectedModel} | 響應時間: ${data.response_time || '未知'}ms
+            </div>`;
+            
+            // 處理文檔分析結果
+            if (data.document_analysis) {
+                let html = modelInfo + `
+                    <div style="margin-bottom: 20px;">
+                        <h4>📄 文檔分析結果</h4>
+                        <p><strong>文件名：</strong>${data.file_name || '未知'}</p>
+                        <p><strong>文檔類型：</strong>${data.document_type || '未知'}</p>
+                        <p><strong>文件大小：</strong>${data.file_size || '未知'}</p>
+                        <p><strong>字數：</strong>${data.document_analysis.word_count || '未知'}字</p>
+                        <p><strong>內容摘要：</strong>${data.document_analysis.summary || '無摘要'}</p>
+                    </div>
+                `;
+                
+                // 顯示文檔結構信息
+                if (data.document_analysis.document_structure) {
+                    const structure = data.document_analysis.document_structure;
+                    html += `
+                        <div style="margin-bottom: 20px;">
+                            <h4>📊 文檔結構分析</h4>
+                            <div style="background: #f5f5f5; padding: 12px; border-radius: 4px;">
+                                <p><strong>總行數：</strong>${structure.總行數 || 0}</p>
+                                <p><strong>有效內容行數：</strong>${structure.有效內容行數 || 0}</p>
+                                <p><strong>章節數量：</strong>${structure.章節數量 || 0}</p>
+                                <p><strong>檢測到表格：</strong>${structure.檢測到表格 || 0}個</p>
+                                <p><strong>檢測到列表：</strong>${structure.檢測到列表 || 0}個</p>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // 顯示提取的關鍵數據
+                if (data.document_analysis.extracted_data) {
+                    const extracted = data.document_analysis.extracted_data;
+                    html += `
+                        <div style="margin-bottom: 20px;">
+                            <h4>🔍 提取的關鍵信息</h4>
+                    `;
+                    
+                    if (extracted.重要數據 && extracted.重要數據.length > 0) {
+                        html += `
+                            <div style="margin-bottom: 10px;">
+                                <strong>重要數據：</strong>
+                                <div style="background: #e8f5e8; padding: 8px; border-radius: 4px; margin-top: 5px;">
+                                    ${extracted.重要數據.join(', ')}
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    if (extracted.核心流程 && extracted.核心流程.length > 0) {
+                        html += `
+                            <div style="margin-bottom: 10px;">
+                                <strong>核心流程：</strong>
+                                <div style="background: #fff3e0; padding: 8px; border-radius: 4px; margin-top: 5px;">
+                        `;
+                        extracted.核心流程.forEach(process => {
+                            html += `<div style="margin-bottom: 5px;">• ${process}</div>`;
+                        });
+                        html += `</div></div>`;
+                    }
+                    
+                    html += `</div>`;
+                }
+                
+                // 顯示專業分析結果
+                if (data.document_analysis.professional_analysis) {
+                    const analysis = data.document_analysis.professional_analysis;
+                    html += `
+                        <div style="margin-bottom: 20px;">
+                            <h4>🎯 專業分析結果</h4>
+                            <div style="background: #f0f8ff; padding: 12px; border-radius: 4px;">
+                                <p><strong>複雜度：</strong>${analysis.complexity || '未評估'}</p>
+                                <p><strong>預估時間：</strong>${analysis.estimated_time || '未評估'}</p>
+                                <p><strong>分析方法：</strong>${data.document_analysis.analysis_method || '動態分析引擎'}</p>
+                                <p><strong>置信度：</strong>${Math.round((data.document_analysis.confidence || 0) * 100)}%</p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // 顯示關鍵洞察
+                    if (analysis.key_insights && analysis.key_insights.length > 0) {
+                        html += `
+                            <div style="margin-bottom: 20px;">
+                                <h4>💡 關鍵洞察</h4>
+                                <div class="feature-list">
+                        `;
+                        analysis.key_insights.forEach(insight => {
+                            html += `<div class="feature-item">${insight}</div>`;
+                        });
+                        html += `</div></div>`;
+                    }
+                    
+                    // 顯示建議
+                    if (analysis.recommendations && analysis.recommendations.length > 0) {
+                        html += `
+                            <div style="margin-bottom: 20px;">
+                                <h4>📋 專業建議</h4>
+                                <div class="steps-list">
+                        `;
+                        analysis.recommendations.forEach((rec, index) => {
+                            html += `<div class="step-item">${index + 1}. ${rec}</div>`;
+                        });
+                        html += `</div></div>`;
+                    }
+                }
+                
+                // 顯示增量引擎洞察
+                if (data.document_analysis.incremental_insights) {
+                    const incremental = data.document_analysis.incremental_insights;
+                    html += `
+                        <div style="margin-bottom: 20px;">
+                            <h4>🚀 增量引擎優化</h4>
+                            <div style="background: #f3e5f5; padding: 12px; border-radius: 4px;">
+                                <p><strong>分析改進：</strong>${incremental.analysis_improvements || 0}項</p>
+                                <p><strong>信心度提升：</strong>${Math.round((incremental.confidence_boost || 0) * 100)}%</p>
+                                <p><strong>整體風險：</strong>${Math.round((incremental.risk_factors?.overall_risk || 0) * 100)}%</p>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                responseContent.innerHTML = html;
+                return;
+            }
+            
+            responseContent.innerHTML = '<p>❌ 沒有找到文檔分析數據</p>';
+        }
+    </script>
+</body>
+</html>
+

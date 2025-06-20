@@ -1,0 +1,365 @@
+{
+  "test_suite": "STRESS_TEST_SUITE",
+  "test_version": "1.0.0",
+  "start_time": "2025-06-20T10:55:14.747985",
+  "end_time": "2025-06-20T10:55:33.855076",
+  "test_cases": {
+    "TC001": {
+      "test_case_id": "TC001",
+      "test_name": "服務健康狀態檢查",
+      "status": "PASS",
+      "start_time": "2025-06-20T10:55:14.748076",
+      "checks": [
+        {
+          "service": "本地UI服務",
+          "url": "http://localhost:5001",
+          "status": "PASS",
+          "response_time": 0.004731655120849609,
+          "data": {
+            "ai_driven": true,
+            "hardcoding": false,
+            "main_engine_url": "http://localhost:8888",
+            "service": "requirements_analysis_ui_backend",
+            "status": "healthy",
+            "timestamp": "2025-06-20T10:55:14.752029",
+            "ui_support": true,
+            "version": "2.0"
+          }
+        },
+        {
+          "service": "EC2 UI服務",
+          "url": "http://18.212.97.173:5001",
+          "status": "PASS",
+          "response_time": 0.004196643829345703,
+          "data": {
+            "ai_driven": true,
+            "hardcoding": false,
+            "main_engine_url": "http://localhost:8888",
+            "service": "requirements_analysis_ui_backend",
+            "status": "healthy",
+            "timestamp": "2025-06-20T14:55:14.755849",
+            "ui_support": true,
+            "version": "2.0"
+          }
+        },
+        {
+          "service": "本地AI引擎",
+          "url": "http://localhost:8888",
+          "status": "PASS",
+          "response_time": 0.0022635459899902344,
+          "data": {
+            "ai_engine_available": true,
+            "architecture": "no_hardcoding_no_placeholders",
+            "environment": "sandbox",
+            "html_support": true,
+            "service": "pure_ai_driven_analysis_system",
+            "status": "healthy",
+            "supported_formats": [
+              "docx",
+              "xls",
+              "jpeg",
+              "txt",
+              "pdf",
+              "xlsx",
+              "md",
+              "jpg",
+              "html",
+              "png",
+              "htm",
+              "gif",
+              "doc",
+              "csv"
+            ],
+            "timestamp": "2025-06-20T10:55:14.759670",
+            "version": "5.0.0-pure-ai"
+          }
+        },
+        {
+          "service": "EC2 AI引擎",
+          "url": "http://18.212.97.173:8888",
+          "status": "PASS",
+          "response_time": 0.003895282745361328,
+          "data": {
+            "ai_engine_available": true,
+            "architecture": "no_hardcoding_no_placeholders",
+            "environment": "sandbox",
+            "html_support": true,
+            "service": "pure_ai_driven_analysis_system",
+            "status": "healthy",
+            "supported_formats": [
+              "jpg",
+              "jpeg",
+              "xlsx",
+              "htm",
+              "txt",
+              "doc",
+              "xls",
+              "pdf",
+              "html",
+              "png",
+              "docx",
+              "csv",
+              "gif",
+              "md"
+            ],
+            "timestamp": "2025-06-20T14:55:14.763237",
+            "version": "5.0.0-pure-ai"
+          }
+        }
+      ],
+      "result": "所有服務健康狀態正常",
+      "end_time": "2025-06-20T10:55:14.765512"
+    },
+    "TC002": {
+      "test_case_id": "TC002",
+      "test_name": "輕量壓力測試",
+      "status": "PASS",
+      "start_time": "2025-06-20T10:55:16.768210",
+      "parameters": {
+        "num_requests": 5,
+        "concurrency": 2,
+        "expected_success_rate": 90
+      },
+      "metrics": {
+        "test_duration": 0.9742348194122314,
+        "total_requests": 10,
+        "successful_requests": 10,
+        "failed_requests": 0,
+        "exceptions": 0,
+        "success_rate": 100.0,
+        "average_response_time": 0.18939409255981446
+      },
+      "system_state": {
+        "initial": {
+          "processes": 0,
+          "ports": {
+            "5001": {
+              "listening": true,
+              "timestamp": "2025-06-20T10:55:16.963420",
+              "process_info": "171335/python"
+            },
+            "8888": {
+              "listening": true,
+              "timestamp": "2025-06-20T10:55:16.981128",
+              "process_info": "165101/python3"
+            }
+          },
+          "zombies": 1
+        },
+        "final": {
+          "processes": 0,
+          "ports": {
+            "5001": {
+              "listening": true,
+              "timestamp": "2025-06-20T10:55:18.277922",
+              "process_info": "171335/python"
+            },
+            "8888": {
+              "listening": true,
+              "timestamp": "2025-06-20T10:55:18.294286",
+              "process_info": "165101/python3"
+            }
+          },
+          "zombies": 1
+        },
+        "changes": {
+          "process_changes": 0,
+          "new_zombies": 0
+        }
+      },
+      "result": "壓力測試通過: 成功率100.0%, 響應時間0.19秒",
+      "end_time": "2025-06-20T10:55:18.404485"
+    },
+    "TC003": {
+      "test_case_id": "TC003",
+      "test_name": "中等負載壓力測試",
+      "status": "PASS",
+      "start_time": "2025-06-20T10:55:20.407262",
+      "parameters": {
+        "num_requests": 10,
+        "concurrency": 5,
+        "expected_success_rate": 85
+      },
+      "metrics": {
+        "test_duration": 0.7851896286010742,
+        "total_requests": 20,
+        "successful_requests": 20,
+        "failed_requests": 0,
+        "exceptions": 0,
+        "success_rate": 100.0,
+        "average_response_time": 0.19406349658966066
+      },
+      "system_state": {
+        "initial": {
+          "processes": 0,
+          "ports": {
+            "5001": {
+              "listening": true,
+              "timestamp": "2025-06-20T10:55:20.596928",
+              "process_info": "171335/python"
+            },
+            "8888": {
+              "listening": true,
+              "timestamp": "2025-06-20T10:55:20.613722",
+              "process_info": "165101/python3"
+            }
+          },
+          "zombies": 1
+        },
+        "final": {
+          "processes": 0,
+          "ports": {
+            "5001": {
+              "listening": true,
+              "timestamp": "2025-06-20T10:55:21.698875",
+              "process_info": "171335/python"
+            },
+            "8888": {
+              "listening": true,
+              "timestamp": "2025-06-20T10:55:21.715035",
+              "process_info": "165101/python3"
+            }
+          },
+          "zombies": 1
+        },
+        "changes": {
+          "process_changes": 0,
+          "new_zombies": 0
+        }
+      },
+      "result": "壓力測試通過: 成功率100.0%, 響應時間0.19秒",
+      "end_time": "2025-06-20T10:55:21.833094"
+    },
+    "TC004": {
+      "test_case_id": "TC004",
+      "test_name": "高負載壓力測試",
+      "status": "PASS",
+      "start_time": "2025-06-20T10:55:23.835937",
+      "parameters": {
+        "num_requests": 20,
+        "concurrency": 10,
+        "expected_success_rate": 80
+      },
+      "metrics": {
+        "test_duration": 0.8155162334442139,
+        "total_requests": 40,
+        "successful_requests": 40,
+        "failed_requests": 0,
+        "exceptions": 0,
+        "success_rate": 100.0,
+        "average_response_time": 0.19885920286178588
+      },
+      "system_state": {
+        "initial": {
+          "processes": 0,
+          "ports": {
+            "5001": {
+              "listening": true,
+              "timestamp": "2025-06-20T10:55:24.019162",
+              "process_info": "171335/python"
+            },
+            "8888": {
+              "listening": true,
+              "timestamp": "2025-06-20T10:55:24.035169",
+              "process_info": "165101/python3"
+            }
+          },
+          "zombies": 1
+        },
+        "final": {
+          "processes": 0,
+          "ports": {
+            "5001": {
+              "listening": true,
+              "timestamp": "2025-06-20T10:55:25.144649",
+              "process_info": "171335/python"
+            },
+            "8888": {
+              "listening": true,
+              "timestamp": "2025-06-20T10:55:25.167704",
+              "process_info": "165101/python3"
+            }
+          },
+          "zombies": 1
+        },
+        "changes": {
+          "process_changes": 0,
+          "new_zombies": 0
+        }
+      },
+      "result": "壓力測試通過: 成功率100.0%, 響應時間0.20秒",
+      "end_time": "2025-06-20T10:55:25.296071"
+    },
+    "TC005": {
+      "test_case_id": "TC005",
+      "test_name": "僵屍進程監控測試",
+      "status": "PASS",
+      "start_time": "2025-06-20T10:55:27.298914",
+      "zombie_processes": [
+        {
+          "pid": 98578,
+          "name": "sudo",
+          "cmdline": "",
+          "timestamp": "2025-06-20T10:55:27.353128"
+        }
+      ],
+      "zombie_count": 1,
+      "monitoring_result": "僵屍進程監控完成",
+      "result": "僵屍進程數量正常: 1個",
+      "end_time": "2025-06-20T10:55:27.434039"
+    },
+    "TC006": {
+      "test_case_id": "TC006",
+      "test_name": "端口狀態監控測試",
+      "status": "PASS",
+      "start_time": "2025-06-20T10:55:29.436619",
+      "port_status": {
+        "5001": {
+          "listening": true,
+          "timestamp": "2025-06-20T10:55:29.453825",
+          "process_info": "171335/python"
+        },
+        "8888": {
+          "listening": true,
+          "timestamp": "2025-06-20T10:55:29.470298",
+          "process_info": "165101/python3"
+        }
+      },
+      "monitoring_result": "端口狀態監控完成",
+      "result": "所有關鍵端口狀態正常",
+      "end_time": "2025-06-20T10:55:29.470340"
+    },
+    "TC007": {
+      "test_case_id": "TC007",
+      "test_name": "API功能驗證測試",
+      "status": "PASS",
+      "start_time": "2025-06-20T10:55:31.472941",
+      "api_tests": [
+        {
+          "server": "本地UI服務",
+          "url": "http://localhost:5001",
+          "status": "PASS",
+          "response_time": 0.16775727272033691,
+          "result": "API功能正常"
+        },
+        {
+          "server": "EC2 UI服務",
+          "url": "http://18.212.97.173:5001",
+          "status": "PASS",
+          "response_time": 0.21043896675109863,
+          "result": "API功能正常"
+        }
+      ],
+      "result": "所有API功能正常",
+      "end_time": "2025-06-20T10:55:31.852625"
+    }
+  },
+  "summary": {
+    "total_tests": 7,
+    "passed_tests": 7,
+    "failed_tests": 0,
+    "error_tests": 0,
+    "pass_rate": 100.0,
+    "overall_status": "PASS"
+  }
+}
