@@ -8,9 +8,9 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import time
-import json
 import asyncio
 from typing import Dict, Any, List
+import json
 import logging
 
 # 設置日誌
@@ -148,14 +148,13 @@ def home():
                 <div class="input-group">
                     <label for="modelSelect">🤖 選擇AI模型：</label>
                     <select id="modelSelect" class="model-select">
-                        <option value="minimax">🚀 MiniMax M1-80k (推薦)</option>
+                        <option value="enhanced_mcp_engine">🎯 增強MCP引擎 (推薦)</option>
                         <option value="gemini_flash">⚡ Gemini Flash (快速)</option>
-                        <option value="gemini_pro">🧠 Gemini Pro (專業)</option>
                         <option value="claude_sonnet">🎯 Claude Sonnet (精準)</option>
                         <option value="auto">🎲 智能選擇 (自動)</option>
                     </select>
                     <div class="model-info">
-                        <small id="modelDescription">MiniMax M1-80k: 高性能中文模型，成本低廉，速度快</small>
+                        <small id="modelDescription">增強MCP引擎: 專業知識庫驅動，量化分析，直接回答關鍵問題</small>
                     </div>
                 </div>
                 
@@ -361,9 +360,8 @@ def home():
             
             function getModelDisplayName(model) {
                 const modelNames = {
-                    'minimax': 'MiniMax M1-80k',
+                    'enhanced_mcp_engine': '增強MCP引擎',
                     'gemini_flash': 'Gemini Flash',
-                    'gemini_pro': 'Gemini Pro',
                     'claude_sonnet': 'Claude Sonnet',
                     'auto': '智能選擇'
                 };
@@ -374,9 +372,8 @@ def home():
             document.getElementById('modelSelect').addEventListener('change', function(e) {
                 const selectedModel = e.target.value;
                 const descriptions = {
-                    'minimax': 'MiniMax M1-80k: 高性能中文模型，成本低廉，速度快',
+                    'enhanced_mcp_engine': '增強MCP引擎: 專業知識庫驅動，量化分析，直接回答關鍵問題',
                     'gemini_flash': 'Gemini Flash: Google最新模型，速度極快，適合快速分析',
-                    'gemini_pro': 'Gemini Pro: Google專業模型，分析深度更好，適合複雜需求',
                     'claude_sonnet': 'Claude Sonnet: Anthropic精準模型，邏輯推理能力強',
                     'auto': '智能選擇: 系統根據任務類型自動選擇最適合的模型'
                 };
@@ -687,31 +684,75 @@ def analyze_requirement():
         return jsonify({"success": False, "error": f"分析失敗: {str(e)}"})
 
 def analyze_with_incremental_engine(requirement: str, model: str) -> Dict[str, Any]:
-    """使用動態分析引擎進行智能分析"""
+    """使用增強的MCP分析引擎"""
     try:
-        # 使用新的動態分析引擎
-        from dynamic_analysis_engine import DynamicAnalysisEngine
+        # 優先使用增強的MCP引擎
+        from enhanced_mcp_engine import call_enhanced_mcp_engine
+        mcp_result = asyncio.run(call_enhanced_mcp_engine(requirement))
         
-        engine = DynamicAnalysisEngine()
-        
-        # 執行動態分析（支持模型容錯和增量增強）
-        result = asyncio.run(engine.analyze_requirement_dynamic(requirement, model))
-        
-        return {
-            "model_used": result.get("model_used", model),
-            "analysis": result.get("analysis", {}),
-            "confidence": result.get("confidence", 0.5),
-            "next_steps": result.get("analysis", {}).get("recommendations", []),
-            "analysis_method": result.get("analysis_method", "dynamic"),
-            "incremental_insights": result.get("incremental_insights", {}),
-            "success": result.get("success", True),
-            "warning": result.get("warning"),  # 傳遞警告信息
-            "fallback_used": result.get("fallback_used", False)  # 傳遞降級標記
-        }
+        if mcp_result.get("success"):
+            logger.info("MCP引擎分析成功，使用知識庫增強結果")
+            analysis = mcp_result.get("analysis", {})
+            return {
+                "model_used": "enhanced_mcp_engine",
+                "analysis": analysis,
+                "confidence": analysis.get("confidence", 0.92),
+                "next_steps": analysis.get("recommendations", []),
+                "analysis_method": "knowledge_based_mcp",
+                "incremental_insights": {
+                    "knowledge_base_enhanced": True,
+                    "quantitative_analysis": True,
+                    "cost_benefit_included": True,
+                    "risk_assessment_included": True
+                },
+                "success": True,
+                "warning": None,
+                "fallback_used": False
+            }
+        else:
+            logger.warning("MCP引擎失敗，降級到AI API")
+            # 降級到AI API
+            return call_ai_api_fallback(requirement, model)
         
     except Exception as e:
-        # 降級到基礎分析
-        logger.error(f"動態分析引擎失敗: {e}")
+        logger.error(f"MCP引擎調用失敗: {e}")
+        # 降級到AI API
+        return call_ai_api_fallback(requirement, model)
+
+def call_ai_api_fallback(requirement: str, model: str) -> Dict[str, Any]:
+    """AI API降級處理"""
+    try:
+        # 調用簡化的AI API
+        if model == "claude_sonnet":
+            from simple_ai_client import call_claude_api
+            result = asyncio.run(call_claude_api(requirement))
+        elif model == "gemini_flash":
+            from simple_ai_client import call_gemini_api
+            result = asyncio.run(call_gemini_api(requirement))
+        else:
+            # 默認使用Claude
+            from simple_ai_client import call_claude_api
+            result = asyncio.run(call_claude_api(requirement))
+        
+        if result.get("success"):
+            analysis = result.get("analysis", {})
+            return {
+                "model_used": result.get("model_used", model),
+                "analysis": analysis,
+                "confidence": analysis.get("confidence", 0.8),
+                "next_steps": analysis.get("recommendations", []),
+                "analysis_method": "ai_api_fallback",
+                "incremental_insights": {"analysis_improvements": 1, "confidence_boost": 0.2},
+                "success": True,
+                "warning": "使用AI API降級模式，建議檢查MCP引擎狀態",
+                "fallback_used": True
+            }
+        else:
+            # 最終降級到本地分析
+            return analyze_with_fallback(requirement, model)
+        
+    except Exception as e:
+        logger.error(f"AI API降級失敗: {e}")
         return analyze_with_fallback(requirement, model)
 
 def detect_domain(requirement: str) -> str:
