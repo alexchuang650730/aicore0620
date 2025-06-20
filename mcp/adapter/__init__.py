@@ -1,1 +1,1 @@
-"""adapter模块包"""
+# Adapter Layer

@@ -45,7 +45,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 # 動態導入AI引擎
 try:
     import sys
-    sys.path.append('./adapter/advanced_analysis_mcp/src')
+    sys.path.append('./mcp/adapter/advanced_analysis_mcp/src')
     from advanced_ai_engine import AdvancedAIEngine as PureAIDrivenEngine
     AI_ENGINE_AVAILABLE = True
     logger.info("純AI驅動引擎加載成功")
