@@ -1196,10 +1196,8 @@ def upload_document():
 """
             
             logger.info("開始動態分析引擎分析")
-            # 執行動態分析
-            analysis_result = asyncio.run(
-                engine.analyze_requirement_dynamic(analysis_requirement, "auto")
-            )
+            # 使用增強的MCP引擎進行文檔分析
+            analysis_result = analyze_with_incremental_engine(analysis_requirement, "enhanced_mcp_engine")
             
             logger.info(f"動態分析完成，成功: {analysis_result.get('success', False)}")
             
@@ -1215,6 +1213,7 @@ def upload_document():
                 "content_type": "保險業務SOP文檔",
                 "complexity": analysis_result.get("analysis", {}).get("complexity", "高度專業"),
                 "word_count": len(document_content),
+                "analysis_method": analysis_result.get("analysis_method", "enhanced_mcp_engine"),
                 "document_structure": {
                     "總行數": doc_structure.get("total_lines", 0),
                     "有效內容行數": doc_structure.get("non_empty_lines", 0),
