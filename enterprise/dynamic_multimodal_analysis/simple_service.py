@@ -1223,8 +1223,8 @@ def upload_document():
                 },
                 "extracted_data": {
                     "關鍵日期": key_info.get("dates", [])[:5],
-                    "重要數據": key_info.get("numbers", [])[:10],
-                    "核心流程": key_info.get("processes", [])[:5]
+                    "重要數據說明": key_info.get("numbers", [])[:10],  # 現在包含上下文說明
+                    "核心流程說明": key_info.get("processes", [])[:5]   # 現在包含完整流程描述
                 },
                 "professional_analysis": analysis_result.get("analysis", {}),
                 "confidence": analysis_result.get("confidence", 0.8),

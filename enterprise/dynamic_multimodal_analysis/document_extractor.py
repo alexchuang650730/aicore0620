@@ -201,7 +201,7 @@ def detect_heading_level(text: str) -> int:
         return 4
 
 def extract_key_information(content: str) -> Dict[str, Any]:
-    """提取關鍵信息"""
+    """提取關鍵信息並提供清楚的說明"""
     import re
     
     key_info = {
@@ -223,24 +223,109 @@ def extract_key_information(content: str) -> Dict[str, Any]:
         matches = re.findall(pattern, content)
         key_info["dates"].extend(matches)
     
-    # 提取數字和比例
-    number_patterns = [
-        r'\d+(?:\.\d+)?%',
-        r'\d+(?:,\d{3})*(?:\.\d+)?(?:元|萬|億)',
-        r'\d+(?:人|件|天|小時|分鐘)'
+    # 提取數字和比例，並提供清楚的說明
+    number_with_context = []
+    
+    # 提取百分比及其上下文，提供清楚說明
+    percent_matches = re.finditer(r'([^。！？\n]*?)(\d+(?:\.\d+)?%)([^。！？\n]*)', content)
+    for match in percent_matches:
+        before, percent, after = match.groups()
+        # 清理上下文，提取關鍵信息
+        context_before = before.strip()[-30:] if before.strip() else ""
+        context_after = after.strip()[:30] if after.strip() else ""
+        
+        # 構建清楚的說明
+        if "自動化" in context_before or "自動化" in context_after:
+            description = f"自動化比率: {percent}"
+        elif "準確率" in context_before or "準確率" in context_after:
+            description = f"準確率: {percent}"
+        elif "審核" in context_before or "審核" in context_after:
+            description = f"審核相關: {percent}"
+        elif "處理" in context_before or "處理" in context_after:
+            description = f"處理效率: {percent}"
+        else:
+            # 提取最相關的詞彙
+            key_words = re.findall(r'[核保|審核|處理|作業|效率|比率|準確|自動]', context_before + context_after)
+            if key_words:
+                description = f"{key_words[0]}相關: {percent}"
+            else:
+                description = f"重要比率: {percent}"
+        
+        number_with_context.append(description)
+    
+    # 提取金額及其說明
+    money_matches = re.finditer(r'([^。！？\n]*?)(\d+(?:,\d{3})*(?:\.\d+)?(?:元|萬|億))([^。！？\n]*)', content)
+    for match in money_matches:
+        before, money, after = match.groups()
+        context = (before.strip()[-20:] + " " + after.strip()[:20]).strip()
+        if "投資" in context or "成本" in context:
+            description = f"投資成本: {money}"
+        elif "保費" in context or "費用" in context:
+            description = f"費用相關: {money}"
+        else:
+            description = f"金額: {money}"
+        number_with_context.append(description)
+    
+    # 提取人數、件數等及其說明
+    count_matches = re.finditer(r'([^。！？\n]*?)(\d+(?:人|件|天|小時|分鐘))([^。！？\n]*)', content)
+    for match in count_matches:
+        before, count, after = match.groups()
+        context = (before.strip()[-20:] + " " + after.strip()[:20]).strip()
+        if "人員" in context or "配置" in context:
+            description = f"人員配置: {count}"
+        elif "處理" in context or "申請" in context:
+            description = f"處理量: {count}"
+        elif "時間" in context:
+            description = f"處理時間: {count}"
+        else:
+            description = f"數量統計: {count}"
+        number_with_context.append(description)
+    
+    key_info["numbers"] = number_with_context[:10]  # 限制數量
+    
+    # 提取核心流程並提供清楚說明
+    process_descriptions = []
+    
+    # 查找具體的SOP流程步驟
+    sop_step_patterns = [
+        r'([^。！？\n]*(?:第[一二三四五六七八九十]+步|步驟\d+|流程\d+)[^。！？\n]*)',
+        r'([^。！？\n]*(?:收文|審核|核保|出單|建檔|轉帳)[^。！？\n]*)',
+        r'([^。！？\n]*(?:標準作業流程|SOP)[^。！？\n]*)'
     ]
     
-    for pattern in number_patterns:
+    for pattern in sop_step_patterns:
         matches = re.findall(pattern, content)
-        key_info["numbers"].extend(matches)
+        for match in matches:
+            clean_match = match.strip()
+            if len(clean_match) > 10 and len(clean_match) < 100:  # 過濾長度
+                # 清理和格式化流程描述
+                if "收文" in clean_match:
+                    process_descriptions.append(f"文件收文流程: {clean_match}")
+                elif "審核" in clean_match or "核保" in clean_match:
+                    process_descriptions.append(f"審核核保流程: {clean_match}")
+                elif "出單" in clean_match or "建檔" in clean_match:
+                    process_descriptions.append(f"出單建檔流程: {clean_match}")
+                elif "SOP" in clean_match or "標準作業" in clean_match:
+                    process_descriptions.append(f"標準作業程序: {clean_match}")
+                else:
+                    process_descriptions.append(f"業務流程: {clean_match}")
     
-    # 提取流程相關詞彙
-    process_keywords = ['流程', '程序', '作業', '處理', '審核', '核保', '理賠', '申請']
-    for keyword in process_keywords:
-        if keyword in content:
-            # 提取包含關鍵字的句子
-            sentences = re.findall(f'[^。！？]*{keyword}[^。！？]*', content)
-            key_info["processes"].extend(sentences[:3])  # 限制數量
+    # 如果沒有找到具體流程，提取重要的業務描述
+    if len(process_descriptions) < 3:
+        business_patterns = [
+            r'([^。！？\n]*(?:核保|保險|理賠|申請)(?:作業|業務|處理)[^。！？\n]*)',
+            r'([^。！？\n]*(?:要保|被保險人|受益人)[^。！？\n]*)',
+            r'([^。！？\n]*(?:保單|契約|保費)[^。！？\n]*)'
+        ]
+        
+        for pattern in business_patterns:
+            matches = re.findall(pattern, content)
+            for match in matches[:2]:
+                clean_match = match.strip()
+                if len(clean_match) > 15 and len(clean_match) < 80:
+                    process_descriptions.append(f"業務說明: {clean_match}")
+    
+    key_info["processes"] = process_descriptions[:5]  # 限制數量
     
     return key_info
 
