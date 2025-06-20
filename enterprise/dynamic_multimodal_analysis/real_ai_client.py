@@ -121,20 +121,36 @@ class RealAIClient:
    - 關鍵里程碑
    - 風險因素
 
-3. **關鍵洞察**：
+3. **關鍵洞察**（至少5個具體洞察）：
    - 核心業務價值
    - 潛在挑戰和機會
    - 行業最佳實踐
+   - 技術趨勢分析
+   - 成本效益考量
 
-4. **專業建議**：
+4. **專業建議**（至少5個具體建議）：
    - 實施策略
    - 技術選型建議
    - 風險緩解措施
+   - 資源配置建議
+   - 階段性實施計劃
 
-5. **量化分析**（如適用）：
+5. **澄清問題**（至少5個關鍵問題）：
+   - 需求細節確認
+   - 技術約束條件
+   - 業務流程細節
+   - 預算和時間限制
+   - 利益相關者需求
+
+6. **量化分析**（如適用）：
    - 人力需求估算
    - 成本效益分析
    - ROI預測
+
+7. **核心功能**（至少3個主要功能）：
+   - 基本功能描述
+   - 高級功能特性
+   - 創新功能建議
 """
 
         # 添加上下文信息
@@ -146,7 +162,25 @@ class RealAIClient:
             if context.get('document_content'):
                 base_prompt += f"\n\n相關文檔內容（前1000字符）：\n{context['document_content'][:1000]}..."
 
-        base_prompt += "\n\n請以JSON格式回應，包含以下字段：complexity, estimated_time, key_insights, recommendations, specific_analysis, confidence"
+        base_prompt += """
+
+請以JSON格式回應，包含以下字段：
+{
+  "complexity": "複雜度描述",
+  "estimated_time": "時間預估",
+  "key_insights": ["洞察1", "洞察2", "洞察3", "洞察4", "洞察5"],
+  "recommendations": ["建議1", "建議2", "建議3", "建議4", "建議5"],
+  "questions": ["問題1", "問題2", "問題3", "問題4", "問題5"],
+  "key_features": ["功能1", "功能2", "功能3"],
+  "specific_analysis": {
+    "technical_aspects": "技術分析",
+    "business_impact": "業務影響",
+    "implementation_strategy": "實施策略"
+  },
+  "confidence": 85
+}
+
+確保所有數組字段都包含具體內容，不要使用占位符或空值。"""
         
         return base_prompt
     
@@ -211,14 +245,39 @@ class RealAIClient:
         else:
             normalized['estimated_time'] = str(estimated_time)
         
-        # 保持其他字段不變
-        normalized['key_insights'] = raw_result.get('key_insights', [])
-        normalized['recommendations'] = raw_result.get('recommendations', [])
-        normalized['questions'] = raw_result.get('questions', [])
+        # 確保關鍵字段都是列表格式
+        normalized['key_insights'] = self._ensure_list(raw_result.get('key_insights', []), "關鍵洞察")
+        normalized['recommendations'] = self._ensure_list(raw_result.get('recommendations', []), "專業建議")
+        normalized['questions'] = self._ensure_list(raw_result.get('questions', []), "澄清問題")
+        normalized['key_features'] = self._ensure_list(raw_result.get('key_features', []), "核心功能")
+        
+        # 保持其他字段
         normalized['specific_analysis'] = raw_result.get('specific_analysis', {})
         normalized['confidence'] = raw_result.get('confidence', 0.8)
         
         return normalized
+    
+    def _ensure_list(self, value, field_name: str) -> list:
+        """確保字段是列表格式，並包含實際內容"""
+        if isinstance(value, list) and len(value) > 0:
+            # 過濾掉空值和占位符
+            filtered = [item for item in value if item and not self._is_placeholder(str(item))]
+            if filtered:
+                return filtered
+        elif isinstance(value, dict) and len(value) > 0:
+            # 如果是字典，轉換為列表
+            return [f"{k}: {v}" for k, v in value.items() if v and not self._is_placeholder(str(v))]
+        
+        # 如果沒有有效內容，返回默認提示
+        return [f"需要進一步分析{field_name}"]
+    
+    def _is_placeholder(self, text: str) -> bool:
+        """檢查是否為占位符"""
+        placeholders = [
+            "暫無", "待定", "需要確認", "placeholder", "示例", "example",
+            "洞察1", "洞察2", "建議1", "建議2", "問題1", "問題2", "功能1", "功能2"
+        ]
+        return any(placeholder in text for placeholder in placeholders)
     
     def _parse_text_response(self, text: str, model: str) -> Dict[str, Any]:
         """解析文本回應為結構化數據"""
