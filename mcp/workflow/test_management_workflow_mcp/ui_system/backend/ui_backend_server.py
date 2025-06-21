@@ -266,7 +266,8 @@ def execute_workflow_test(workflow_id, test_type, description, extra_params):
     """執行工作流測試"""
     try:
         workflow_config = WORKFLOWS[workflow_id]
-        workflow_path = Path(workflow_config['path'])
+        # 修正路徑：使用絕對路徑
+        workflow_path = Path('/home/ubuntu/aicore0620') / workflow_config['path']
         
         if test_type == 'unit':
             return execute_unit_tests(workflow_path, workflow_id)
@@ -289,11 +290,14 @@ def execute_unit_tests(workflow_path, workflow_id):
     try:
         unit_tests_path = workflow_path / 'unit_tests'
         
+        print(f"🔍 檢查路徑: {unit_tests_path}")  # 調試信息
+        
         if not unit_tests_path.exists():
             return {
                 'status': 'warning',
                 'message': f'工作流 {workflow_id} 沒有單元測試目錄',
-                'path': str(unit_tests_path)
+                'path': str(unit_tests_path),
+                'debug_info': f'檢查路徑: {unit_tests_path}, 存在: {unit_tests_path.exists()}'
             }
         
         # 查找測試文件
@@ -303,11 +307,12 @@ def execute_unit_tests(workflow_path, workflow_id):
             return {
                 'status': 'warning',
                 'message': f'工作流 {workflow_id} 沒有找到測試文件',
-                'path': str(unit_tests_path)
+                'path': str(unit_tests_path),
+                'files_found': [str(f) for f in unit_tests_path.glob('*.py')]
             }
         
-        # 執行pytest
-        result = run_pytest(unit_tests_path)
+        # 直接執行unittest而不是pytest
+        result = run_unittest(unit_tests_path, workflow_id)
         
         return {
             'status': 'success',
@@ -360,6 +365,59 @@ def execute_integration_tests(workflow_path, workflow_id):
         return {
             'status': 'error',
             'message': f'執行集成測試失敗: {str(e)}'
+        }
+
+def run_unittest(test_path, workflow_id):
+    """運行unittest測試"""
+    try:
+        # 查找主要的測試文件
+        test_file = test_path / f'test_{workflow_id}.py'
+        
+        if not test_file.exists():
+            # 如果沒有找到主測試文件，查找其他test_*.py文件
+            test_files = list(test_path.glob('test_*.py'))
+            if test_files:
+                test_file = test_files[0]  # 使用第一個找到的測試文件
+            else:
+                return {
+                    'returncode': -1,
+                    'stdout': '',
+                    'stderr': f'沒有找到測試文件: {test_file}',
+                    'success': False
+                }
+        
+        # 使用subprocess運行unittest
+        cmd = ['python3', '-m', 'unittest', f'test_{workflow_id}.py', '-v']
+        
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=60,  # 60秒超時
+            cwd=str(test_path)  # 在測試目錄中運行
+        )
+        
+        return {
+            'returncode': result.returncode,
+            'stdout': result.stdout,
+            'stderr': result.stderr,
+            'success': result.returncode == 0,
+            'test_file': str(test_file)
+        }
+        
+    except subprocess.TimeoutExpired:
+        return {
+            'returncode': -1,
+            'stdout': '',
+            'stderr': '測試執行超時',
+            'success': False
+        }
+    except Exception as e:
+        return {
+            'returncode': -1,
+            'stdout': '',
+            'stderr': str(e),
+            'success': False
         }
 
 def run_pytest(test_path):
