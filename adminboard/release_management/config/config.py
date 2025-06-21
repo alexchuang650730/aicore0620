@@ -2,7 +2,7 @@
 
 # 服務配置
 UI_BACKEND_HOST = "0.0.0.0"
-UI_BACKEND_PORT = 5002
+UI_BACKEND_PORT = 5003
 DEBUG_MODE = False
 
 # 純AI驅動發布管理引擎配置
