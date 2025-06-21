@@ -17,8 +17,9 @@ import requests
 
 # 添加路徑
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../../mcp/workflow/pure_ai_architecture_design_system'))
 
-from config.architecture_design.global_config import ArchitectureDesignConfig
+from adminboard.architecture_design.config.config import ArchitectureDesignConfig
 
 # 設置日誌
 logging.basicConfig(level=logging.INFO)
@@ -33,7 +34,7 @@ class ArchitectureDesignUIServer:
     def __init__(self):
         self.service_name = "architecture_design_ui_server"
         self.version = "1.0.0"
-        self.main_engine_url = "http://localhost:8303"  # 架構設計MCP服務
+        self.main_engine_url = ArchitectureDesignConfig.MCP_SERVICE_URL
         
     async def analyze_architecture_requirement(self, requirement, context=None):
         """分析架構設計需求"""
@@ -292,8 +293,7 @@ def get_status():
         }), 500
 
 if __name__ == '__main__':
-    config = ArchitectureDesignConfig()
-    port = config.ADMIN_UI_PORT
+    port = ArchitectureDesignConfig.UI_PORT
     
     print(f"🚀 啟動架構設計UI服務器...")
     print(f"📋 服務名稱: {ui_server.service_name}")

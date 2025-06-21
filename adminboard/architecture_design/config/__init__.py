@@ -7,7 +7,7 @@ __version__ = "1.0.0"
 __author__ = "Manus AI"
 __description__ = "Admin board configuration for architecture design system"
 
-from .config import AdminBoardConfig
+from .config import ArchitectureDesignConfig
 
-__all__ = ['AdminBoardConfig']
+__all__ = ['ArchitectureDesignConfig']
 
