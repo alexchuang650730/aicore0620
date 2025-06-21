@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AICore0620 七大工作流測試系統</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: #f8fafc;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .section h3 {
+            font-size: 1.3rem;
+            color: #2d3748;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .form-select, .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus, .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .radio-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-direction: column;
+        }
+
+        .radio-option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .radio-option input[type="radio"] {
+            display: none;
+        }
+
+        .radio-option input[type="radio"]:checked + .radio-custom {
+            background: #667eea;
+            border-color: #667eea;
+        }
+
+        .radio-option input[type="radio"]:checked + .radio-custom::after {
+            opacity: 1;
+        }
+
+        .radio-option input[type="radio"]:checked ~ * {
+            color: #667eea;
+        }
+
+        .radio-custom {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #cbd5e0;
+            border-radius: 50%;
+            position: relative;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .radio-custom::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .radio-option-content {
+            flex: 1;
+        }
+
+        .radio-option-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .radio-option small {
+            color: #718096;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 2px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+        }
+
+        .result-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f0fff4;
+            border-radius: 15px;
+            border-left: 5px solid #48bb78;
+            display: none;
+        }
+
+        .result-section.error {
+            background: #fff5f5;
+            border-left-color: #f56565;
+        }
+
+        .result-section h4 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .test-params {
+            transition: all 0.3s ease;
+        }
+
+        .test-params.hidden {
+            display: none;
+        }
+
+        .unit-test-info {
+            background: #e6fffa;
+            border: 1px solid #81e6d9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .unit-test-info h5 {
+            color: #234e52;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .unit-test-info p {
+            color: #2c7a7b;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .radio-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 系統操作</h1>
+            <p>選擇組件並執行相應的工作流操作</p>
+        </div>
+
+        <div class="content">
+            <!-- 工作流選擇 -->
+            <div class="section">
+                <h3>⚙️ 工作流選擇</h3>
+                <label class="form-label">選擇要測試的工作流</label>
+                <select id="workflowSelect" class="form-select">
+                    <option value="">請選擇工作流...</option>
+                    <option value="coding_workflow_mcp">編碼工作流 (Coding Workflow MCP)</option>
+                    <option value="requirements_analysis_mcp">需求分析工作流 (Requirements Analysis MCP)</option>
+                    <option value="operations_workflow_mcp">運營工作流 (Operations Workflow MCP)</option>
+                    <option value="release_manager_mcp">發布管理工作流 (Release Manager MCP)</option>
+                    <option value="architecture_design_mcp">架構設計工作流 (Architecture Design MCP)</option>
+                    <option value="developer_flow_mcp">開發者工作流 (Developer Flow MCP)</option>
+                    <option value="test_management_workflow_mcp">測試管理工作流 (Test Management Workflow MCP)</option>
+                </select>
+            </div>
+
+            <!-- 測試類型選擇 -->
+            <div class="section">
+                <h3>🧪 測試類型</h3>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <div class="radio-option-title">
+                            <input type="radio" name="testType" value="unit" checked onchange="toggleTestParams()">
+                            <span class="radio-custom"></span>
+                            API測試 (單元測試)
+                        </div>
+                        <small>直接執行現有的unit_tests，無需額外參數</small>
+                    </label>
+                    <label class="radio-option">
+                        <div class="radio-option-title">
+                            <input type="radio" name="testType" value="integration" onchange="toggleTestParams()">
+                            <span class="radio-custom"></span>
+                            文生模板 (集成測試)
+                        </div>
+                        <small>需要提供測試場景和參數的集成測試</small>
+                    </label>
+                </div>
+                
+                <!-- Unit Test 說明 -->
+                <div id="unitTestInfo" class="unit-test-info">
+                    <h5>📋 Unit Test 執行說明</h5>
+                    <p>單元測試會自動執行所有測試用例，包括模塊初始化、核心功能、異步操作、配置處理和錯誤處理測試。測試結果會自動生成JSON報告。</p>
+                </div>
+            </div>
+
+            <!-- 操作模式選擇 -->
+            <div class="section">
+                <h3>🎯 操作模式</h3>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <div class="radio-option-title">
+                            <input type="radio" name="operationMode" value="ui" checked>
+                            <span class="radio-custom"></span>
+                            UI操作模式
+                        </div>
+                        <small>通過界面直接執行測試並查看結果</small>
+                    </label>
+                    <label class="radio-option">
+                        <div class="radio-option-title">
+                            <input type="radio" name="operationMode" value="curl">
+                            <span class="radio-custom"></span>
+                            curl命令模式
+                        </div>
+                        <small>生成curl命令，便於自動化和腳本集成</small>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 測試參數 (僅在集成測試時顯示) -->
+            <div id="testParams" class="section test-params hidden">
+                <h3>⚙️ 測試參數</h3>
+                <div style="margin-bottom: 20px;">
+                    <label class="form-label">測試場景描述</label>
+                    <textarea id="testDescription" class="form-textarea" rows="3" placeholder="請描述具體的測試場景，例如：測試用戶註冊流程的完整集成..."></textarea>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label class="form-label">測試輸入數據 (JSON格式)</label>
+                    <textarea id="testInputData" class="form-textarea" rows="4" placeholder='{"user_id": "test_001", "scenario": "registration", "data": {...}}'></textarea>
+                </div>
+                <div>
+                    <label class="form-label">期望輸出</label>
+                    <input type="text" id="expectedOutput" class="form-input" placeholder="描述期望的測試結果...">
+                </div>
+            </div>
+
+            <!-- 操作按鈕 -->
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="executeTest()">
+                    <span>🚀</span> 執行測試
+                </button>
+                <button class="btn btn-secondary" onclick="generateCurl()">
+                    <span>📋</span> 生成curl命令
+                </button>
+                <button class="btn btn-secondary" onclick="systemHealthCheck()">
+                    <span>🏥</span> 系統健康檢查
+                </button>
+                <button class="btn btn-secondary" onclick="viewArchitectureReport()">
+                    <span>📊</span> 查看架構報告
+                </button>
+            </div>
+
+            <!-- 載入中 -->
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>正在執行測試，請稍候...</p>
+            </div>
+
+            <!-- 結果顯示 -->
+            <div id="resultSection" class="result-section">
+                <h4 id="resultTitle">📊 測試結果</h4>
+                <div id="resultContent" class="result-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 切換測試參數顯示
+        function toggleTestParams() {
+            const testType = document.querySelector('input[name="testType"]:checked').value;
+            const testParams = document.getElementById('testParams');
+            const unitTestInfo = document.getElementById('unitTestInfo');
+            
+            if (testType === 'unit') {
+                testParams.classList.add('hidden');
+                unitTestInfo.style.display = 'block';
+            } else {
+                testParams.classList.remove('hidden');
+                unitTestInfo.style.display = 'none';
+            }
+        }
+
+        // 顯示結果
+        function showResult(title, content, isError = false) {
+            const resultSection = document.getElementById('resultSection');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultContent = document.getElementById('resultContent');
+            
+            resultTitle.textContent = title;
+            resultContent.innerHTML = content;
+            
+            if (isError) {
+                resultSection.classList.add('error');
+            } else {
+                resultSection.classList.remove('error');
+            }
+            
+            resultSection.style.display = 'block';
+            resultSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 顯示載入狀態
+        function showLoading(show = true) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        // 執行測試
+        async function executeTest() {
+            const workflowId = document.getElementById('workflowSelect').value;
+            const testType = document.querySelector('input[name="testType"]:checked').value;
+            const operationMode = document.querySelector('input[name="operationMode"]:checked').value;
+            
+            if (!workflowId) {
+                showResult('❌ 錯誤', '<p style="color: #e53e3e;">請先選擇一個工作流</p>', true);
+                return;
+            }
+
+            if (operationMode === 'curl') {
+                generateCurl();
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                const requestData = {
+                    workflow_id: workflowId,
+                    test_type: testType
+                };
+
+                // 如果是集成測試，添加額外參數
+                if (testType === 'integration') {
+                    requestData.description = document.getElementById('testDescription').value;
+                    requestData.extra_params = {
+                        input_data: document.getElementById('testInputData').value,
+                        expected_output: document.getElementById('expectedOutput').value
+                    };
+                }
+
+                const response = await fetch('/api/workflow-test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    const resultHtml = `
+                        <h5>✅ 測試執行成功</h5>
+                        <p><strong>工作流:</strong> ${result.workflow_name}</p>
+                        <p><strong>測試類型:</strong> ${testType === 'unit' ? 'API測試(單元測試)' : '文生模板(集成測試)'}</p>
+                        <p><strong>執行時間:</strong> ${result.timestamp}</p>
+                        <div style="margin-top: 15px;">
+                            <h6>測試結果詳情:</h6>
+                            <pre style="background: #f7fafc; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 0.9rem;">${JSON.stringify(result.result, null, 2)}</pre>
+                        </div>
+                    `;
+                    showResult('📊 測試結果', resultHtml);
+                } else {
+                    showResult('❌ 測試失敗', `<p style="color: #e53e3e;">${result.error}</p>`, true);
+                }
+            } catch (error) {
+                showResult('❌ 網絡錯誤', `<p style="color: #e53e3e;">請求失敗: ${error.message}</p>`, true);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 生成curl命令
+        async function generateCurl() {
+            const workflowId = document.getElementById('workflowSelect').value;
+            const testType = document.querySelector('input[name="testType"]:checked').value;
+            
+            if (!workflowId) {
+                showResult('❌ 錯誤', '<p style="color: #e53e3e;">請先選擇一個工作流</p>', true);
+                return;
+            }
+
+            try {
+                const requestData = {
+                    workflow_id: workflowId,
+                    test_type: testType
+                };
+
+                // 如果是集成測試，添加額外參數
+                if (testType === 'integration') {
+                    requestData.description = document.getElementById('testDescription').value;
+                    requestData.extra_params = {
+                        input_data: document.getElementById('testInputData').value,
+                        expected_output: document.getElementById('expectedOutput').value
+                    };
+                }
+
+                const response = await fetch('/api/generate-curl', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    const curlHtml = `
+                        <h5>📋 生成的curl命令</h5>
+                        <div style="margin: 15px 0;">
+                            <button onclick="copyCurl()" style="background: #667eea; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">📋 複製命令</button>
+                        </div>
+                        <pre id="curlCommand" style="background: #2d3748; color: #e2e8f0; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 0.9rem; line-height: 1.4;">${result.curl_command}</pre>
+                        <div style="margin-top: 15px;">
+                            <h6>參數詳情:</h6>
+                            <pre style="background: #f7fafc; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 0.9rem;">${JSON.stringify(result.parameters, null, 2)}</pre>
+                        </div>
+                    `;
+                    showResult('📋 curl命令', curlHtml);
+                } else {
+                    showResult('❌ 生成失敗', `<p style="color: #e53e3e;">${result.error}</p>`, true);
+                }
+            } catch (error) {
+                showResult('❌ 網絡錯誤', `<p style="color: #e53e3e;">請求失敗: ${error.message}</p>`, true);
+            }
+        }
+
+        // 複製curl命令
+        function copyCurl() {
+            const curlCommand = document.getElementById('curlCommand').textContent;
+            navigator.clipboard.writeText(curlCommand).then(() => {
+                alert('curl命令已複製到剪貼板！');
+            });
+        }
+
+        // 系統健康檢查
+        async function systemHealthCheck() {
+            showLoading(true);
+
+            try {
+                const response = await fetch('/api/health-check');
+                const result = await response.json();
+                
+                const healthHtml = `
+                    <h5>🏥 系統健康狀態</h5>
+                    <p><strong>系統版本:</strong> ${result.system_version}</p>
+                    <p><strong>檢查時間:</strong> ${result.timestamp}</p>
+                    <div style="margin-top: 15px;">
+                        <h6>工作流狀態:</h6>
+                        <div style="display: grid; gap: 10px; margin-top: 10px;">
+                            ${Object.entries(result.workflows).map(([id, status]) => `
+                                <div style="padding: 10px; background: ${status.status === 'available' ? '#f0fff4' : '#fff5f5'}; border-radius: 5px; border-left: 4px solid ${status.status === 'available' ? '#48bb78' : '#f56565'};">
+                                    <strong>${id}:</strong> 
+                                    <span style="color: ${status.status === 'available' ? '#38a169' : '#e53e3e'};">
+                                        ${status.status === 'available' ? '✅ 可用' : '❌ 不可用'}
+                                    </span>
+                                    ${status.unit_tests !== undefined ? `<br><small>Unit Tests: ${status.unit_tests ? '✅' : '❌'} | Integration Tests: ${status.integration_tests ? '✅' : '❌'}</small>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                showResult('🏥 系統健康檢查', healthHtml);
+            } catch (error) {
+                showResult('❌ 檢查失敗', `<p style="color: #e53e3e;">健康檢查失敗: ${error.message}</p>`, true);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 查看架構報告
+        function viewArchitectureReport() {
+            const reportHtml = `
+                <h5>📊 AICore0620 七大工作流測試系統架構</h5>
+                <div style="margin-top: 15px;">
+                    <h6>🏗️ 系統架構:</h6>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li><strong>前端界面:</strong> 響應式HTML + JavaScript</li>
+                        <li><strong>後端API:</strong> Flask統一測試端點</li>
+                        <li><strong>測試集成:</strong> 利用現有unit_tests和integration_tests</li>
+                        <li><strong>命令生成:</strong> 動態curl命令構建</li>
+                    </ul>
+                    
+                    <h6>📋 支持的七大工作流:</h6>
+                    <ol style="margin: 10px 0; padding-left: 20px;">
+                        <li>Coding Workflow MCP - 編碼工作流</li>
+                        <li>Requirements Analysis MCP - 需求分析工作流</li>
+                        <li>Operations Workflow MCP - 運營工作流</li>
+                        <li>Release Manager MCP - 發布管理工作流</li>
+                        <li>Architecture Design MCP - 架構設計工作流</li>
+                        <li>Developer Flow MCP - 開發者工作流</li>
+                        <li>Test Management Workflow MCP - 測試管理工作流</li>
+                    </ol>
+                    
+                    <h6>🎯 核心功能:</h6>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li><strong>統一測試入口:</strong> 一個界面測試所有工作流</li>
+                        <li><strong>雙模式支持:</strong> UI操作 + curl命令生成</li>
+                        <li><strong>完整測試覆蓋:</strong> 單元測試 + 集成測試</li>
+                        <li><strong>實時結果:</strong> 狀態指示、進度條、錯誤日誌</li>
+                        <li><strong>開發友好:</strong> 自動生成curl命令，便於自動化</li>
+                    </ul>
+                </div>
+            `;
+            showResult('📊 架構報告', reportHtml);
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleTestParams(); // 初始化參數顯示狀態
+        });
+    </script>
+</body>
+</html>
+

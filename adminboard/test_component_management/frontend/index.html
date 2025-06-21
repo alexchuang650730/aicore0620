@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>測試組件管理系統 - AICore0620</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .workflow-section {
+            margin-bottom: 40px;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .workflow-title {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #4facfe;
+            padding-bottom: 10px;
+        }
+
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .component-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .component-card:hover {
+            border-color: #4facfe;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(79, 172, 254, 0.2);
+        }
+
+        .component-card.selected {
+            border-color: #00f2fe;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        }
+
+        .component-name {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .component-type {
+            display: inline-block;
+            background: #4facfe;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-bottom: 10px;
+        }
+
+        .component-description {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .action-panel {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: #4facfe;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2196f3;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-active {
+            background: #4caf50;
+        }
+
+        .status-inactive {
+            background: #f44336;
+        }
+
+        .status-unknown {
+            background: #ff9800;
+        }
+
+        .results-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4facfe;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .architecture-info {
+            background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+            border-left: 5px solid #28a745;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .architecture-info h3 {
+            color: #155724;
+            margin-bottom: 10px;
+        }
+
+        .architecture-info p {
+            color: #155724;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏗️ 測試組件管理系統</h1>
+            <p>AICore0620 - 純AI驅動測試組件歸屬管理與重構驗證</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 架構重構信息 -->
+            <div class="architecture-info">
+                <h3>🎯 架構重構完成</h3>
+                <p><strong>performance_analysis_mcp</strong> 保留在 Coding Workflow (編碼階段性能反饋)</p>
+                <p><strong>testing_strategy_mcp</strong> 移動到 Test Management Workflow (測試策略核心組件)</p>
+                <p>職責邊界更清晰，協同效率更高，符合AICore0620目錄規範3.0</p>
+            </div>
+
+            <!-- Coding Workflow Section -->
+            <div class="workflow-section">
+                <h2 class="workflow-title">📝 Coding Workflow MCP (6個組件)</h2>
+                <div class="component-grid" id="codingComponents">
+                    <!-- 組件將通過JavaScript動態加載 -->
+                </div>
+            </div>
+
+            <!-- Test Management Workflow Section -->
+            <div class="workflow-section">
+                <h2 class="workflow-title">🧪 Test Management Workflow MCP (4個組件)</h2>
+                <div class="component-grid" id="testComponents">
+                    <!-- 組件將通過JavaScript動態加載 -->
+                </div>
+            </div>
+
+            <!-- 操作面板 -->
+            <div class="action-panel">
+                <h3>🚀 系統操作</h3>
+                <p>選擇組件並執行相應的工作流操作</p>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="testCodingWorkflow()">測試 Coding Workflow</button>
+                    <button class="btn btn-primary" onclick="testTestManagementWorkflow()">測試 Test Management Workflow</button>
+                    <button class="btn btn-secondary" onclick="checkSystemHealth()">系統健康檢查</button>
+                    <button class="btn btn-secondary" onclick="viewArchitectureReport()">查看架構報告</button>
+                </div>
+            </div>
+
+            <!-- 結果顯示區域 -->
+            <div class="results-section" id="resultsSection">
+                <h3>📊 執行結果</h3>
+                <div id="resultsContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 組件數據
+        const codingComponents = [
+            {
+                id: 'kilocode_mcp',
+                name: 'KiloCode代碼生成MCP',
+                type: 'generator',
+                port: 8317,
+                description: '專業的代碼生成引擎，當需要創建新代碼、解決方案或原型時的首選組件',
+                status: 'unknown'
+            },
+            {
+                id: 'code_quality_mcp',
+                name: '代碼質量分析MCP',
+                type: 'analyzer',
+                port: 8310,
+                description: '專業的代碼質量評估能力，適合代碼審查、質量控制和規範檢查',
+                status: 'unknown'
+            },
+            {
+                id: 'architecture_design_mcp',
+                name: '架構設計分析MCP',
+                type: 'analyzer',
+                port: 8311,
+                description: '專業的系統架構分析能力，適合架構設計評估和技術決策',
+                status: 'unknown'
+            },
+            {
+                id: 'performance_analysis_mcp',
+                name: '性能分析MCP',
+                type: 'analyzer',
+                port: 8312,
+                description: '性能分析在編碼階段提供即時反饋，與架構設計緊密配合',
+                status: 'unknown'
+            },
+            {
+                id: 'security_audit_mcp',
+                name: '安全審計MCP',
+                type: 'analyzer',
+                port: 8313,
+                description: '專業的安全審計能力，適合安全檢查和風險評估需求',
+                status: 'unknown'
+            },
+            {
+                id: 'code_documentation_mcp',
+                name: '代碼文檔分析MCP',
+                type: 'analyzer',
+                port: 8315,
+                description: '專業的代碼文檔分析能力，適合文檔質量評估和知識管理',
+                status: 'unknown'
+            },
+            {
+                id: 'dependency_analysis_mcp',
+                name: '依賴關係分析MCP',
+                type: 'analyzer',
+                port: 8316,
+                description: '專業的依賴關係分析能力，適合依賴管理和安全掃描需求',
+                status: 'unknown'
+            }
+        ];
+
+        const testComponents = [
+            {
+                id: 'testing_strategy_mcp',
+                name: '測試策略分析MCP',
+                type: 'strategy_analyzer',
+                port: 8314,
+                description: '測試策略制定是測試管理的核心，從Coding Workflow遷移而來，與測試執行協同',
+                status: 'unknown'
+            },
+            {
+                id: 'test_execution_mcp',
+                name: '測試執行管理MCP',
+                type: 'execution_manager',
+                port: 8318,
+                description: '專業的測試執行管理能力，適合測試執行和環境管理需求',
+                status: 'unknown'
+            },
+            {
+                id: 'test_automation_mcp',
+                name: '測試自動化MCP',
+                type: 'automation_engine',
+                port: 8319,
+                description: '專業的測試自動化能力，適合自動化測試和持續集成需求',
+                status: 'unknown'
+            },
+            {
+                id: 'quality_assurance_mcp',
+                name: '質量保證分析MCP',
+                type: 'quality_analyzer',
+                port: 8320,
+                description: '專業的質量保證分析能力，適合質量控制和風險管理需求',
+                status: 'unknown'
+            }
+        ];
+
+        // 渲染組件
+        function renderComponents() {
+            renderComponentGrid('codingComponents', codingComponents);
+            renderComponentGrid('testComponents', testComponents);
+        }
+
+        function renderComponentGrid(containerId, components) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = components.map(component => `
+                <div class="component-card" data-component-id="${component.id}" onclick="selectComponent('${component.id}')">
+                    <div class="component-name">
+                        <span class="status-indicator status-${component.status}"></span>
+                        ${component.name}
+                    </div>
+                    <div class="component-type">${component.type}</div>
+                    <div class="component-description">${component.description}</div>
+                    <div style="margin-top: 10px; font-size: 0.8em; color: #888;">
+                        Port: ${component.port}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 選擇組件
+        function selectComponent(componentId) {
+            // 移除所有選中狀態
+            document.querySelectorAll('.component-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // 添加選中狀態
+            document.querySelector(`[data-component-id="${componentId}"]`).classList.add('selected');
+        }
+
+        // 測試Coding Workflow
+        async function testCodingWorkflow() {
+            showResults('正在測試Coding Workflow MCP...', true);
+            
+            try {
+                const response = await fetch('/api/test-coding-workflow', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        requirement: '創建一個高性能的數據處理API',
+                        context: { complexity: 'high', priority: 'performance' }
+                    })
+                });
+                
+                const result = await response.json();
+                showResults(`
+                    <h4>✅ Coding Workflow 測試結果</h4>
+                    <p><strong>選中組件數量:</strong> ${result.selected_components?.length || 0}</p>
+                    <p><strong>AI信心度:</strong> ${result.confidence || 'N/A'}</p>
+                    <p><strong>執行狀態:</strong> ${result.success ? '成功' : '失敗'}</p>
+                    <pre>${JSON.stringify(result, null, 2)}</pre>
+                `);
+            } catch (error) {
+                showResults(`❌ 測試失敗: ${error.message}`);
+            }
+        }
+
+        // 測試Test Management Workflow
+        async function testTestManagementWorkflow() {
+            showResults('正在測試Test Management Workflow MCP...', true);
+            
+            try {
+                const response = await fetch('/api/test-test-workflow', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        requirement: '為新API制定全面測試策略',
+                        context: { scope: 'comprehensive', phase: 'planning' }
+                    })
+                });
+                
+                const result = await response.json();
+                showResults(`
+                    <h4>✅ Test Management Workflow 測試結果</h4>
+                    <p><strong>選中組件數量:</strong> ${result.selected_components?.length || 0}</p>
+                    <p><strong>AI信心度:</strong> ${result.confidence || 'N/A'}</p>
+                    <p><strong>執行狀態:</strong> ${result.success ? '成功' : '失敗'}</p>
+                    <pre>${JSON.stringify(result, null, 2)}</pre>
+                `);
+            } catch (error) {
+                showResults(`❌ 測試失敗: ${error.message}`);
+            }
+        }
+
+        // 系統健康檢查
+        async function checkSystemHealth() {
+            showResults('正在檢查系統健康狀態...', true);
+            
+            try {
+                const response = await fetch('/api/health-check');
+                const result = await response.json();
+                
+                showResults(`
+                    <h4>🏥 系統健康檢查結果</h4>
+                    <p><strong>系統狀態:</strong> ${result.status}</p>
+                    <p><strong>Coding Workflow:</strong> ${result.coding_workflow_status || '未知'}</p>
+                    <p><strong>Test Management Workflow:</strong> ${result.test_workflow_status || '未知'}</p>
+                    <p><strong>檢查時間:</strong> ${new Date().toLocaleString()}</p>
+                `);
+            } catch (error) {
+                showResults(`❌ 健康檢查失敗: ${error.message}`);
+            }
+        }
+
+        // 查看架構報告
+        function viewArchitectureReport() {
+            showResults(`
+                <h4>📋 架構重構報告</h4>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 10px 0;">
+                    <h5>🔒 performance_analysis_mcp 保留決策</h5>
+                    <p><strong>位置:</strong> Coding Workflow MCP</p>
+                    <p><strong>理由:</strong> 性能分析在編碼階段就需要考慮，與代碼生成、架構設計緊密配合</p>
+                    <p><strong>優勢:</strong> 提供即時性能反饋，避免後期重構成本</p>
+                </div>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 10px 0;">
+                    <h5>🔄 testing_strategy_mcp 移動決策</h5>
+                    <p><strong>位置:</strong> Test Management Workflow MCP</p>
+                    <p><strong>理由:</strong> 測試策略制定是測試管理的核心功能</p>
+                    <p><strong>優勢:</strong> 與測試執行、測試編排在同一workflow協同更高效</p>
+                </div>
+                <div style="background: #e8f5e8; padding: 20px; border-radius: 8px; margin: 10px 0;">
+                    <h5>📊 重構效果</h5>
+                    <p>✅ 更清晰的職責邊界</p>
+                    <p>✅ 更高效的組件協同</p>
+                    <p>✅ 更專業的領域深度</p>
+                    <p>✅ 更靈活的獨立擴展</p>
+                </div>
+            `);
+        }
+
+        // 顯示結果
+        function showResults(content, isLoading = false) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            if (isLoading) {
+                resultsContent.innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>${content}</p>
+                    </div>
+                `;
+            } else {
+                resultsContent.innerHTML = content;
+            }
+            
+            resultsSection.style.display = 'block';
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 頁面加載完成後初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderComponents();
+        });
+    </script>
+</body>
+</html>
+

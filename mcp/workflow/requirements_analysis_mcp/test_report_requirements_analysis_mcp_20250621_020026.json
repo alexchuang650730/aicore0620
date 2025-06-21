@@ -1,0 +1,23 @@
+{
+  "test_id": "MCP_TestRequirementsAnalysisMcp_20250621_020026",
+  "test_name": "TestRequirementsAnalysisMcp",
+  "module_name": "requirements_analysis_mcp",
+  "module_type": "workflow",
+  "test_start_time": "2025-06-21T02:00:26.225662",
+  "test_end_time": "2025-06-21T02:00:26.229381",
+  "test_duration": 0.003719,
+  "test_results": [
+    {
+      "test_case": "TC001_模块初始化测试",
+      "status": "PASS",
+      "message": "模块初始化测试通过",
+      "timestamp": "2025-06-21T02:00:26.229138"
+    }
+  ],
+  "test_summary": {
+    "total_tests": 1,
+    "passed_tests": 1,
+    "failed_tests": 0,
+    "success_rate": 100.0
+  }
+}

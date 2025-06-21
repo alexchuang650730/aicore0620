@@ -1,0 +1,23 @@
+{
+  "test_id": "MCP_TestCodingWorkflowMcp_20250621_012258",
+  "test_name": "TestCodingWorkflowMcp",
+  "module_name": "coding_workflow_mcp",
+  "module_type": "workflow",
+  "test_start_time": "2025-06-21T01:22:58.240431",
+  "test_end_time": "2025-06-21T01:22:58.244914",
+  "test_duration": 0.004483,
+  "test_results": [
+    {
+      "test_case": "TC001_模块初始化测试",
+      "status": "PASS",
+      "message": "模块初始化测试通过",
+      "timestamp": "2025-06-21T01:22:58.244489"
+    }
+  ],
+  "test_summary": {
+    "total_tests": 1,
+    "passed_tests": 1,
+    "failed_tests": 0,
+    "success_rate": 100.0
+  }
+}
