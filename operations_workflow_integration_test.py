@@ -183,7 +183,7 @@ class OperationsWorkflowIntegrationTest:
             # 由於Product Layer是模組而非服務，我們直接導入測試
             import sys
             import os
-            sys.path.append('/home/ubuntu/aicore0620/pure_ai_driven_system/product/operations')
+            sys.path.append('/home/ubuntu/aicore0620/product')
             
             from operations_orchestrator import analyze_operations_requirement
             
@@ -243,7 +243,7 @@ class OperationsWorkflowIntegrationTest:
             
             # 1. Product Layer分析
             import sys
-            sys.path.append('/home/ubuntu/aicore0620/pure_ai_driven_system/product/operations')
+            sys.path.append('/home/ubuntu/aicore0620/product')
             from operations_orchestrator import analyze_operations_requirement
             
             start_time = time.time()
@@ -341,7 +341,7 @@ class OperationsWorkflowIntegrationTest:
                 print(f"     📋 測試案例: {test_case['name']}")
                 
                 import sys
-                sys.path.append('/home/ubuntu/aicore0620/pure_ai_driven_system/product/operations')
+                sys.path.append('/home/ubuntu/aicore0620/product')
                 from operations_orchestrator import analyze_operations_requirement
                 
                 result = await analyze_operations_requirement(

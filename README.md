@@ -23,11 +23,11 @@
 
 ```bash
 # 啟動Adapter Layer - 運營分析引擎
-cd pure_ai_driven_system/adapter/operations_analysis_mcp
+cd mcp/adapter/operations_analysis_mcp
 python3 operations_analysis_server.py &
 
 # 啟動Workflow Layer - 運營工作流MCP  
-cd pure_ai_driven_system/workflow/operations_workflow_mcp
+cd mcp/workflow/operations_workflow_mcp
 python3 operations_workflow_mcp.py &
 ```
 
