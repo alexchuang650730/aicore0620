@@ -1,0 +1,20 @@
+{
+  "module": "test_management_workflow_mcp",
+  "type": "workflow",
+  "test_start_time": "2025-06-21T02:11:02.243653",
+  "test_end_time": "2025-06-21T02:11:02.245134",
+  "total_tests": 1,
+  "passed_tests": 1,
+  "failed_tests": 0,
+  "test_results": [
+    {
+      "test_case": "TC001_模块初始化测试",
+      "status": "通过",
+      "timestamp": "2025-06-21T02:11:02.244851",
+      "details": {
+        "components_count": 4,
+        "module_type": "workflow"
+      }
+    }
+  ]
+}
