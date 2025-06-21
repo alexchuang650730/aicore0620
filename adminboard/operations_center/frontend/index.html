@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>運營中心 - Operations Center</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.2rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .header .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-top: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+            border-bottom: 2px solid #e8f4fd;
+        }
+
+        .nav-tab {
+            padding: 0.75rem 2rem;
+            background: none;
+            border: none;
+            color: #7f8c8d;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-tab.active {
+            color: #2c3e50;
+            border-bottom-color: #667eea;
+        }
+
+        .nav-tab:hover {
+            color: #2c3e50;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 系統監控模組樣式 */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e8f4fd;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .system-overview .card-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .services-status .card-icon {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .resource-monitor .card-icon {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .alerts-center .card-icon {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .status-running {
+            background: #27ae60;
+            box-shadow: 0 0 10px rgba(39, 174, 96, 0.5);
+        }
+
+        .status-error {
+            background: #e74c3c;
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+        }
+
+        .status-warning {
+            background: #f39c12;
+            box-shadow: 0 0 10px rgba(243, 156, 18, 0.5);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+            margin-top: 1rem;
+            width: 100%;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* 工作流管理模組樣式 */
+        .workflow-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .workflow-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .workflow-header h2 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .workflow-header p {
+            color: #7f8c8d;
+            font-size: 1rem;
+        }
+
+        .workflow-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e8f4fd;
+        }
+
+        .workflow-tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .workflow-tab.active {
+            color: #2c3e50;
+            border-bottom-color: #ff6b6b;
+        }
+
+        .workflow-tab:hover {
+            color: #2c3e50;
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e8f4fd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: transform 0.2s ease;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .nav-tabs {
+                flex-direction: column;
+            }
+
+            .nav-tab {
+                padding: 0.5rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 運營中心</h1>
+        <div class="subtitle">Operations Center - 統一運營管理與工作流平台</div>
+        
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchMainTab('monitoring')">📊 系統監控</button>
+            <button class="nav-tab" onclick="switchMainTab('workflow')">🔄 工作流管理</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 系統監控模組 -->
+        <div id="monitoring-content" class="tab-content active">
+            <div class="dashboard-grid">
+                <!-- 系統概覽 -->
+                <div class="card system-overview">
+                    <div class="card-header">
+                        <div class="card-icon">📊</div>
+                        <div class="card-title">系統概覽</div>
+                    </div>
+                    <div id="system-overview-content">
+                        <div class="loading">正在載入系統資訊...</div>
+                    </div>
+                </div>
+
+                <!-- 服務狀態 -->
+                <div class="card services-status">
+                    <div class="card-header">
+                        <div class="card-icon">⚙️</div>
+                        <div class="card-title">服務狀態監控</div>
+                    </div>
+                    <div id="services-content">
+                        <div class="loading">正在檢查服務狀態...</div>
+                    </div>
+                    <button class="refresh-btn" onclick="refreshServices()">🔄 刷新服務狀態</button>
+                </div>
+
+                <!-- 資源監控 -->
+                <div class="card resource-monitor">
+                    <div class="card-header">
+                        <div class="card-icon">💻</div>
+                        <div class="card-title">資源監控</div>
+                    </div>
+                    <div id="resource-content">
+                        <div class="loading">正在監控系統資源...</div>
+                    </div>
+                </div>
+
+                <!-- 告警中心 -->
+                <div class="card alerts-center">
+                    <div class="card-header">
+                        <div class="card-icon">🚨</div>
+                        <div class="card-title">告警中心</div>
+                    </div>
+                    <div id="alerts-content">
+                        <div class="loading">正在載入告警資訊...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 工作流管理模組 -->
+        <div id="workflow-content" class="tab-content">
+            <div class="workflow-section">
+                <div class="workflow-header">
+                    <h2>🔄 運營工作流管理</h2>
+                    <p>純AI驅動的運營工作流分析與優化平台</p>
+                </div>
+
+                <div class="workflow-tabs">
+                    <button class="workflow-tab active" onclick="switchWorkflowTab('text')">📝 文本分析</button>
+                    <button class="workflow-tab" onclick="switchWorkflowTab('upload')">📁 文件上傳</button>
+                </div>
+
+                <!-- 文本分析標籤 -->
+                <div id="text-workflow" class="workflow-tab-content">
+                    <form id="textWorkflowForm">
+                        <div class="form-group">
+                            <label class="form-label" for="workflowRequirement">運營需求描述</label>
+                            <textarea 
+                                id="workflowRequirement" 
+                                class="form-textarea" 
+                                placeholder="請描述您的運營工作流需求，例如：分析客戶服務流程、優化訂單處理流程、改善庫存管理等..."
+                                required
+                            ></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="workflowModel">分析模型</label>
+                            <select id="workflowModel" class="form-select">
+                                <option value="pure_ai_engine">純AI引擎 (推薦)</option>
+                                <option value="workflow_optimizer">工作流優化器</option>
+                                <option value="process_analyzer">流程分析器</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="submit-btn">🚀 開始分析</button>
+                    </form>
+                </div>
+
+                <!-- 文件上傳標籤 -->
+                <div id="upload-workflow" class="workflow-tab-content" style="display: none;">
+                    <form id="uploadWorkflowForm">
+                        <div class="form-group">
+                            <label class="form-label" for="workflowFiles">上傳工作流文件</label>
+                            <input 
+                                type="file" 
+                                id="workflowFiles" 
+                                class="form-input" 
+                                multiple 
+                                accept=".txt,.pdf,.doc,.docx,.xls,.xlsx,.html,.htm,.md,.csv,.json,.yaml,.yml,.log"
+                            >
+                            <small style="color: #7f8c8d; margin-top: 0.5rem; display: block;">
+                                支援格式：TXT, PDF, DOC, DOCX, XLS, XLSX, HTML, MD, CSV, JSON, YAML, LOG
+                            </small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="uploadWorkflowRequirement">分析需求 (可選)</label>
+                            <textarea 
+                                id="uploadWorkflowRequirement" 
+                                class="form-textarea" 
+                                placeholder="請描述您希望如何分析這些文件，例如：分析流程瓶頸、識別改善機會、評估效率等..."
+                            ></textarea>
+                        </div>
+                        
+                        <button type="submit" class="submit-btn">📤 上傳並分析</button>
+                    </form>
+                </div>
+
+                <!-- 結果顯示區域 -->
+                <div id="workflow-result" class="result-section">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>🤖 AI正在分析運營工作流...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局變數
+        let monitoringInterval;
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMonitoringDashboard();
+            // 設置自動刷新 (30秒)
+            monitoringInterval = setInterval(loadMonitoringDashboard, 30000);
+        });
+
+        // 主標籤切換
+        function switchMainTab(tabName) {
+            // 隱藏所有標籤內容
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // 移除所有標籤的active類
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 顯示選中的標籤內容
+            document.getElementById(tabName + '-content').classList.add('active');
+            
+            // 添加active類到選中的標籤
+            event.target.classList.add('active');
+
+            // 根據標籤管理監控刷新
+            if (tabName === 'monitoring') {
+                if (!monitoringInterval) {
+                    loadMonitoringDashboard();
+                    monitoringInterval = setInterval(loadMonitoringDashboard, 30000);
+                }
+            } else {
+                if (monitoringInterval) {
+                    clearInterval(monitoringInterval);
+                    monitoringInterval = null;
+                }
+            }
+        }
+
+        // 工作流標籤切換
+        function switchWorkflowTab(tabName) {
+            // 隱藏所有工作流標籤內容
+            document.querySelectorAll('.workflow-tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // 移除所有工作流標籤的active類
+            document.querySelectorAll('.workflow-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 顯示選中的工作流標籤內容
+            document.getElementById(tabName + '-workflow').style.display = 'block';
+            
+            // 添加active類到選中的工作流標籤
+            event.target.classList.add('active');
+        }
+
+        // 載入監控儀表板數據
+        async function loadMonitoringDashboard() {
+            try {
+                await Promise.all([
+                    loadSystemOverview(),
+                    loadServices(),
+                    loadResourceMonitor(),
+                    loadAlerts()
+                ]);
+            } catch (error) {
+                console.error('載入監控儀表板失敗:', error);
+            }
+        }
+
+        // 載入系統概覽
+        async function loadSystemOverview() {
+            try {
+                const response = await fetch('/api/system/overview');
+                const data = await response.json();
+                
+                const content = document.getElementById('system-overview-content');
+                content.innerHTML = `
+                    <div class="metric">
+                        <span class="metric-label">系統狀態</span>
+                        <span class="metric-value">
+                            <span class="status-indicator status-${data.status === 'healthy' ? 'running' : 'error'}"></span>
+                            ${data.status === 'healthy' ? '正常' : '異常'}
+                        </span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">運行時間</span>
+                        <span class="metric-value">${data.uptime || '未知'}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">活動服務</span>
+                        <span class="metric-value">${data.active_services || 0} / ${data.total_services || 0}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">活動告警</span>
+                        <span class="metric-value">${data.active_alerts || 0}</span>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('載入系統概覽失敗:', error);
+                document.getElementById('system-overview-content').innerHTML = 
+                    '<div class="loading">載入失敗，請稍後重試</div>';
+            }
+        }
+
+        // 載入服務狀態
+        async function loadServices() {
+            try {
+                const response = await fetch('/api/services/status');
+                const data = await response.json();
+                
+                const content = document.getElementById('services-content');
+                let servicesHtml = '';
+                
+                if (data.services && data.services.length > 0) {
+                    data.services.forEach(service => {
+                        const statusClass = service.status === 'running' ? 'running' : 
+                                          service.status === 'error' ? 'error' : 'warning';
+                        const statusText = service.status === 'running' ? '運行中' : 
+                                         service.status === 'error' ? '錯誤' : '警告';
+                        
+                        servicesHtml += `
+                            <div class="metric">
+                                <span class="metric-label">${service.name}</span>
+                                <span class="metric-value">
+                                    <span class="status-indicator status-${statusClass}"></span>
+                                    ${statusText}
+                                </span>
+                            </div>
+                        `;
+                    });
+                } else {
+                    servicesHtml = '<div class="loading">暫無服務資訊</div>';
+                }
+                
+                content.innerHTML = servicesHtml;
+            } catch (error) {
+                console.error('載入服務狀態失敗:', error);
+                document.getElementById('services-content').innerHTML = 
+                    '<div class="loading">載入失敗，請稍後重試</div>';
+            }
+        }
+
+        // 載入資源監控
+        async function loadResourceMonitor() {
+            try {
+                const response = await fetch('/api/system/resources');
+                const data = await response.json();
+                
+                const content = document.getElementById('resource-content');
+                content.innerHTML = `
+                    <div class="metric">
+                        <span class="metric-label">CPU 使用率</span>
+                        <span class="metric-value">${data.cpu_percent || 0}%</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${data.cpu_percent || 0}%"></div>
+                        </div>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">記憶體使用率</span>
+                        <span class="metric-value">${data.memory_percent || 0}%</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${data.memory_percent || 0}%"></div>
+                        </div>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">磁碟使用率</span>
+                        <span class="metric-value">${data.disk_percent || 0}%</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${data.disk_percent || 0}%"></div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('載入資源監控失敗:', error);
+                document.getElementById('resource-content').innerHTML = 
+                    '<div class="loading">載入失敗，請稍後重試</div>';
+            }
+        }
+
+        // 載入告警資訊
+        async function loadAlerts() {
+            try {
+                const response = await fetch('/api/alerts');
+                const data = await response.json();
+                
+                const content = document.getElementById('alerts-content');
+                let alertsHtml = '';
+                
+                if (data.alerts && data.alerts.length > 0) {
+                    data.alerts.slice(0, 5).forEach(alert => {
+                        alertsHtml += `
+                            <div class="metric">
+                                <span class="metric-label">${alert.type}</span>
+                                <span class="metric-value" style="font-size: 0.9rem;">${alert.message}</span>
+                            </div>
+                        `;
+                    });
+                } else {
+                    alertsHtml = '<div class="loading">暫無告警資訊</div>';
+                }
+                
+                content.innerHTML = alertsHtml;
+            } catch (error) {
+                console.error('載入告警資訊失敗:', error);
+                document.getElementById('alerts-content').innerHTML = 
+                    '<div class="loading">載入失敗，請稍後重試</div>';
+            }
+        }
+
+        // 刷新服務狀態
+        function refreshServices() {
+            loadServices();
+        }
+
+        // 工作流表單提交處理
+        document.getElementById('textWorkflowForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const requirement = document.getElementById('workflowRequirement').value;
+            const model = document.getElementById('workflowModel').value;
+            
+            if (!requirement.trim()) {
+                alert('請輸入運營需求描述');
+                return;
+            }
+            
+            showWorkflowLoading();
+            
+            try {
+                const response = await fetch('/api/workflow/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        requirement: requirement,
+                        model: model
+                    })
+                });
+                
+                const result = await response.json();
+                displayWorkflowResult(result);
+            } catch (error) {
+                displayWorkflowError('工作流分析請求失敗: ' + error.message);
+            }
+        });
+
+        // 文件上傳表單提交處理
+        document.getElementById('uploadWorkflowForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            const files = document.getElementById('workflowFiles').files;
+            const requirement = document.getElementById('uploadWorkflowRequirement').value || '請分析上傳的工作流文件';
+            
+            if (files.length === 0) {
+                alert('請選擇要上傳的文件');
+                return;
+            }
+            
+            for (let file of files) {
+                formData.append('files', file);
+            }
+            formData.append('requirement', requirement);
+            
+            showWorkflowLoading();
+            
+            try {
+                const response = await fetch('/api/workflow/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                displayWorkflowResult(result);
+            } catch (error) {
+                displayWorkflowError('文件上傳失敗: ' + error.message);
+            }
+        });
+
+        function showWorkflowLoading() {
+            const resultDiv = document.getElementById('workflow-result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>🤖 AI正在分析運營工作流...</p>
+                </div>
+            `;
+        }
+
+        function displayWorkflowResult(result) {
+            const resultDiv = document.getElementById('workflow-result');
+            resultDiv.style.display = 'block';
+            
+            if (result.success) {
+                const analysis = result.analysis || result.fallback_analysis || '分析完成';
+                const confidence = result.confidence_score ? (result.confidence_score * 100).toFixed(1) + '%' : 'N/A';
+                const processingTime = result.processing_time ? result.processing_time.toFixed(3) + 's' : 'N/A';
+                
+                resultDiv.innerHTML = `
+                    <h3>🎯 工作流分析結果</h3>
+                    <div style="margin: 15px 0; padding: 10px; background: #e3f2fd; border-radius: 5px;">
+                        <strong>信心度:</strong> ${confidence} | 
+                        <strong>處理時間:</strong> ${processingTime} | 
+                        <strong>引擎:</strong> ${result.model_used || 'pure_ai_engine'}
+                    </div>
+                    <div style="white-space: pre-wrap; line-height: 1.6;">${analysis}</div>
+                `;
+            } else {
+                displayWorkflowError(result.error || '分析失敗');
+            }
+        }
+
+        function displayWorkflowError(message) {
+            const resultDiv = document.getElementById('workflow-result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 5px;">
+                    <h3>❌ 錯誤</h3>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+
+        // 頁面卸載時清除定時器
+        window.addEventListener('beforeunload', function() {
+            if (monitoringInterval) {
+                clearInterval(monitoringInterval);
+            }
+        });
+    </script>
+</body>
+</html>
+
