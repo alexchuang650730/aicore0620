@@ -1,0 +1,103 @@
+{
+  "test_timestamp": "2025-06-20T13:22:02.120846",
+  "test_summary": {
+    "total_tests": 5,
+    "successful_tests": 5,
+    "success_rate": 1.0,
+    "overall_status": "PASS"
+  },
+  "test_results": {
+    "Adapter Layer": {
+      "success": true,
+      "health_status": "healthy",
+      "ai_engine_available": true,
+      "analysis_success": true,
+      "confidence_score": 0.95,
+      "processing_time": 0.2786228656768799,
+      "engine_type": "ultimate_operations_claude_analysis"
+    },
+    "Workflow Layer": {
+      "success": true,
+      "health_status": "healthy",
+      "workflow_success": true,
+      "operations_type": "monitoring_operations",
+      "components_selected": 1,
+      "processing_time": 0.1488630771636963,
+      "release_manager_integrated": true
+    },
+    "Product Layer": {
+      "success": true,
+      "orchestration_success": true,
+      "confidence_score": 0.95,
+      "workflow_type": "adaptive_operations_workflow",
+      "processing_time": 0.2926054000854492,
+      "release_manager_integrated": true
+    },
+    "End-to-End": {
+      "success": true,
+      "e2e_success": true,
+      "overall_confidence": 0.95,
+      "operations_type": "release_operations",
+      "total_processing_time": 0.2921121120452881,
+      "release_manager_integrated": true,
+      "workflow_stages": 1
+    },
+    "Release Manager Integration": {
+      "success": true,
+      "test_cases": [
+        {
+          "test_case": "Hotfix Release",
+          "success": {
+            "release_type": "hotfix",
+            "selected_components": [
+              {
+                "component_name": "deployment_analysis_mcp",
+                "selection_reason": "緊急修復部署需求"
+              }
+            ],
+            "release_urgency": "high",
+            "release_risk": "high",
+            "operations_priority": "medium",
+            "operations_strategy": "standard",
+            "coordination_mechanism": "sequential",
+            "ai_transform_confidence": 0.88
+          },
+          "release_type": "hotfix",
+          "urgency_mapped": "high"
+        },
+        {
+          "test_case": "Feature Release",
+          "success": {
+            "release_type": "feature",
+            "selected_components": [
+              {
+                "component_name": "performance_analysis_mcp",
+                "selection_reason": "新功能性能評估"
+              }
+            ],
+            "release_urgency": "medium",
+            "release_risk": "medium",
+            "operations_priority": "medium",
+            "operations_strategy": "standard",
+            "coordination_mechanism": "sequential",
+            "ai_transform_confidence": 0.88
+          },
+          "release_type": "feature",
+          "urgency_mapped": "medium"
+        }
+      ],
+      "success_rate": 1.0,
+      "integration_capabilities": [
+        "release_type_mapping",
+        "urgency_transformation",
+        "component_inheritance"
+      ]
+    }
+  },
+  "architecture_validation": {
+    "three_layer_architecture": true,
+    "ai_driven": true,
+    "zero_hardcoding": true,
+    "release_manager_integration": true
+  }
+}
