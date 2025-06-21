@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AICore0620 工作流測試系統</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-panel {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .form-select, .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus, .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .radio-item:hover {
+            border-color: #667eea;
+            background-color: #f7fafc;
+        }
+
+        .radio-item input[type="radio"] {
+            margin-right: 8px;
+        }
+
+        .radio-item.selected {
+            border-color: #667eea;
+            background-color: #edf2f7;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 2px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
+        }
+
+        .results-panel {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        .result-item {
+            background: #f7fafc;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .result-success {
+            border-left-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .result-error {
+            border-left-color: #f56565;
+            background: #fff5f5;
+        }
+
+        .curl-command {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-success { background-color: #48bb78; }
+        .status-error { background-color: #f56565; }
+        .status-warning { background-color: #ed8936; }
+        .status-info { background-color: #4299e1; }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .radio-group {
+                flex-direction: column;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 AICore0620 工作流測試系統</h1>
+            <p>統一的七大工作流測試平台 - 支持API測試和文生模板測試</p>
+        </div>
+
+        <div class="main-panel">
+            <!-- 工作流選擇 -->
+            <div class="section">
+                <div class="section-title">📋 工作流選擇</div>
+                <div class="form-group">
+                    <label class="form-label">選擇要測試的工作流：</label>
+                    <select id="workflowSelect" class="form-select">
+                        <option value="">請選擇工作流...</option>
+                        <option value="coding_workflow_mcp">編碼工作流 (Coding Workflow MCP)</option>
+                        <option value="requirements_analysis_mcp">需求分析工作流 (Requirements Analysis MCP)</option>
+                        <option value="operations_workflow_mcp">運營工作流 (Operations Workflow MCP)</option>
+                        <option value="release_manager_mcp">發布管理工作流 (Release Manager MCP)</option>
+                        <option value="architecture_design_mcp">架構設計工作流 (Architecture Design MCP)</option>
+                        <option value="developer_flow_mcp">開發者工作流 (Developer Flow MCP)</option>
+                        <option value="test_management_workflow_mcp">測試管理工作流 (Test Management Workflow MCP)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 測試類型選擇 -->
+            <div class="section">
+                <div class="section-title">🔧 測試類型</div>
+                <div class="radio-group">
+                    <label class="radio-item">
+                        <input type="radio" name="testType" value="unit" checked>
+                        <span>API測試 (單元測試)</span>
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" name="testType" value="integration">
+                        <span>文生模板 (集成測試)</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 操作模式選擇 -->
+            <div class="section">
+                <div class="section-title">🎯 操作模式</div>
+                <div class="radio-group">
+                    <label class="radio-item">
+                        <input type="radio" name="operationMode" value="ui" checked>
+                        <span>UI操作模式</span>
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" name="operationMode" value="curl">
+                        <span>curl命令模式</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 測試參數 -->
+            <div class="section">
+                <div class="section-title">⚙️ 測試參數</div>
+                <div class="form-group">
+                    <label class="form-label">測試描述：</label>
+                    <input type="text" id="testDescription" class="form-input" placeholder="輸入測試描述...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">額外參數 (JSON格式)：</label>
+                    <textarea id="testParams" class="form-textarea" rows="4" placeholder='{"key": "value"}'></textarea>
+                </div>
+            </div>
+
+            <!-- 操作按鈕 -->
+            <div class="button-group">
+                <button id="executeTest" class="btn btn-primary">
+                    <span>▶️</span> 執行測試
+                </button>
+                <button id="generateCurl" class="btn btn-secondary">
+                    <span>📋</span> 生成curl命令
+                </button>
+                <button id="clearResults" class="btn btn-secondary">
+                    <span>🗑️</span> 清除結果
+                </button>
+                <button id="healthCheck" class="btn btn-success">
+                    <span>🏥</span> 系統健康檢查
+                </button>
+            </div>
+        </div>
+
+        <!-- 載入指示器 -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>正在執行測試，請稍候...</p>
+        </div>
+
+        <!-- 結果顯示 -->
+        <div id="resultsPanel" class="results-panel" style="display: none;">
+            <div class="section-title">📊 測試結果</div>
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // 全局變量
+        let currentWorkflow = '';
+        let currentTestType = 'unit';
+        let currentMode = 'ui';
+
+        // DOM元素
+        const workflowSelect = document.getElementById('workflowSelect');
+        const testTypeRadios = document.querySelectorAll('input[name="testType"]');
+        const operationModeRadios = document.querySelectorAll('input[name="operationMode"]');
+        const testDescription = document.getElementById('testDescription');
+        const testParams = document.getElementById('testParams');
+        const executeTestBtn = document.getElementById('executeTest');
+        const generateCurlBtn = document.getElementById('generateCurl');
+        const clearResultsBtn = document.getElementById('clearResults');
+        const healthCheckBtn = document.getElementById('healthCheck');
+        const loading = document.getElementById('loading');
+        const resultsPanel = document.getElementById('resultsPanel');
+        const resultsContent = document.getElementById('resultsContent');
+
+        // 事件監聽器
+        workflowSelect.addEventListener('change', (e) => {
+            currentWorkflow = e.target.value;
+            updateUI();
+        });
+
+        testTypeRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                currentTestType = e.target.value;
+                updateRadioStyles();
+            });
+        });
+
+        operationModeRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                currentMode = e.target.value;
+                updateRadioStyles();
+            });
+        });
+
+        executeTestBtn.addEventListener('click', executeTest);
+        generateCurlBtn.addEventListener('click', generateCurlCommand);
+        clearResultsBtn.addEventListener('click', clearResults);
+        healthCheckBtn.addEventListener('click', healthCheck);
+
+        // 更新UI狀態
+        function updateUI() {
+            const hasWorkflow = currentWorkflow !== '';
+            executeTestBtn.disabled = !hasWorkflow;
+            generateCurlBtn.disabled = !hasWorkflow;
+        }
+
+        // 更新單選按鈕樣式
+        function updateRadioStyles() {
+            document.querySelectorAll('.radio-item').forEach(item => {
+                const radio = item.querySelector('input[type="radio"]');
+                if (radio.checked) {
+                    item.classList.add('selected');
+                } else {
+                    item.classList.remove('selected');
+                }
+            });
+        }
+
+        // 執行測試
+        async function executeTest() {
+            if (!currentWorkflow) {
+                showResult('請先選擇工作流', 'error');
+                return;
+            }
+
+            showLoading(true);
+            
+            try {
+                const params = {
+                    workflow_id: currentWorkflow,
+                    test_type: currentTestType,
+                    description: testDescription.value,
+                    mode: currentMode
+                };
+
+                // 嘗試解析額外參數
+                if (testParams.value.trim()) {
+                    try {
+                        params.extra_params = JSON.parse(testParams.value);
+                    } catch (e) {
+                        showResult('額外參數JSON格式錯誤: ' + e.message, 'error');
+                        showLoading(false);
+                        return;
+                    }
+                }
+
+                const response = await fetch('/api/workflow-test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(params)
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showResult(result, 'success');
+                } else {
+                    showResult(result.error || '測試執行失敗', 'error');
+                }
+            } catch (error) {
+                showResult('網絡錯誤: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 生成curl命令
+        async function generateCurlCommand() {
+            if (!currentWorkflow) {
+                showResult('請先選擇工作流', 'error');
+                return;
+            }
+
+            try {
+                const params = {
+                    workflow_id: currentWorkflow,
+                    test_type: currentTestType,
+                    description: testDescription.value,
+                    mode: 'curl'
+                };
+
+                if (testParams.value.trim()) {
+                    try {
+                        params.extra_params = JSON.parse(testParams.value);
+                    } catch (e) {
+                        showResult('額外參數JSON格式錯誤: ' + e.message, 'error');
+                        return;
+                    }
+                }
+
+                const response = await fetch('/api/generate-curl', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(params)
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showCurlCommand(result.curl_command);
+                } else {
+                    showResult(result.error || 'curl命令生成失敗', 'error');
+                }
+            } catch (error) {
+                showResult('網絡錯誤: ' + error.message, 'error');
+            }
+        }
+
+        // 系統健康檢查
+        async function healthCheck() {
+            showLoading(true);
+            
+            try {
+                const response = await fetch('/api/health-check');
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showResult(result, 'success');
+                } else {
+                    showResult(result.error || '健康檢查失敗', 'error');
+                }
+            } catch (error) {
+                showResult('網絡錯誤: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 顯示載入狀態
+        function showLoading(show) {
+            loading.style.display = show ? 'block' : 'none';
+        }
+
+        // 顯示結果
+        function showResult(data, type = 'info') {
+            resultsPanel.style.display = 'block';
+            
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result-item result-${type}`;
+            
+            const statusIcon = getStatusIcon(type);
+            const timestamp = new Date().toLocaleString();
+            
+            if (typeof data === 'object') {
+                resultDiv.innerHTML = `
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                        <span class="status-indicator status-${type}"></span>
+                        <strong>${statusIcon} 測試結果</strong>
+                        <span style="margin-left: auto; font-size: 0.9rem; color: #666;">${timestamp}</span>
+                    </div>
+                    <pre style="background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto;">${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div style="display: flex; align-items: center;">
+                        <span class="status-indicator status-${type}"></span>
+                        <strong>${statusIcon} ${data}</strong>
+                        <span style="margin-left: auto; font-size: 0.9rem; color: #666;">${timestamp}</span>
+                    </div>
+                `;
+            }
+            
+            resultsContent.insertBefore(resultDiv, resultsContent.firstChild);
+        }
+
+        // 顯示curl命令
+        function showCurlCommand(command) {
+            resultsPanel.style.display = 'block';
+            
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'result-item';
+            resultDiv.innerHTML = `
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <span class="status-indicator status-info"></span>
+                    <strong>📋 生成的curl命令</strong>
+                    <button onclick="copyToClipboard('${command.replace(/'/g, "\\'")}', this)" style="margin-left: auto; padding: 5px 10px; border: none; background: #667eea; color: white; border-radius: 4px; cursor: pointer;">複製</button>
+                </div>
+                <div class="curl-command">${command}</div>
+            `;
+            
+            resultsContent.insertBefore(resultDiv, resultsContent.firstChild);
+        }
+
+        // 複製到剪貼板
+        function copyToClipboard(text, button) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.textContent;
+                button.textContent = '已複製!';
+                button.style.background = '#48bb78';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '#667eea';
+                }, 2000);
+            });
+        }
+
+        // 獲取狀態圖標
+        function getStatusIcon(type) {
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            return icons[type] || 'ℹ️';
+        }
+
+        // 清除結果
+        function clearResults() {
+            resultsContent.innerHTML = '';
+            resultsPanel.style.display = 'none';
+        }
+
+        // 初始化
+        updateRadioStyles();
+        updateUI();
+    </script>
+</body>
+</html>
+
