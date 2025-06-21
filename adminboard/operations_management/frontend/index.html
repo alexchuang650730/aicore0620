@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>運營管理中心 - Operations Management Center</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .header .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-top: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e8f4fd;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .system-overview .card-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .services-status .card-icon {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .resource-monitor .card-icon {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .alerts-center .card-icon {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .status-running {
+            background: #27ae60;
+            box-shadow: 0 0 10px rgba(39, 174, 96, 0.5);
+        }
+
+        .status-error {
+            background: #e74c3c;
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+        }
+
+        .status-warning {
+            background: #f39c12;
+            box-shadow: 0 0 10px rgba(243, 156, 18, 0.5);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .service-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .service-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .service-status {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .alert-item {
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 10px;
+            border-left: 4px solid #e74c3c;
+            background: #fff5f5;
+        }
+
+        .alert-time {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+
+        .alert-message {
+            margin-top: 0.5rem;
+            color: #2c3e50;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+            margin-top: 1rem;
+            width: 100%;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .loading {
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 運營管理中心</h1>
+        <div class="subtitle">Operations Management Center - 實時監控與智能管理</div>
+    </div>
+
+    <div class="container">
+        <div class="dashboard-grid">
+            <!-- 系統概覽 -->
+            <div class="card system-overview">
+                <div class="card-header">
+                    <div class="card-icon">📊</div>
+                    <div class="card-title">系統概覽</div>
+                </div>
+                <div id="system-overview-content">
+                    <div class="loading">正在載入系統資訊...</div>
+                </div>
+            </div>
+
+            <!-- 服務狀態 -->
+            <div class="card services-status">
+                <div class="card-header">
+                    <div class="card-icon">⚙️</div>
+                    <div class="card-title">服務狀態監控</div>
+                </div>
+                <div id="services-content">
+                    <div class="loading">正在檢查服務狀態...</div>
+                </div>
+                <button class="refresh-btn" onclick="refreshServices()">🔄 刷新服務狀態</button>
+            </div>
+
+            <!-- 資源監控 -->
+            <div class="card resource-monitor">
+                <div class="card-header">
+                    <div class="card-icon">💻</div>
+                    <div class="card-title">資源監控</div>
+                </div>
+                <div id="resource-content">
+                    <div class="loading">正在監控系統資源...</div>
+                </div>
+            </div>
+
+            <!-- 告警中心 -->
+            <div class="card alerts-center">
+                <div class="card-header">
+                    <div class="card-icon">🚨</div>
+                    <div class="card-title">告警中心</div>
+                </div>
+                <div id="alerts-content">
+                    <div class="loading">正在載入告警資訊...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局變數
+        let refreshInterval;
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboard();
+            // 設置自動刷新 (30秒)
+            refreshInterval = setInterval(loadDashboard, 30000);
+        });
+
+        // 載入儀表板數據
+        async function loadDashboard() {
+            try {
+                await Promise.all([
+                    loadSystemOverview(),
+                    loadServices(),
+                    loadResourceMonitor(),
+                    loadAlerts()
+                ]);
+            } catch (error) {
+                console.error('載入儀表板失敗:', error);
+            }
+        }
+
+        // 載入系統概覽
+        async function loadSystemOverview() {
+            try {
+                const response = await fetch('/api/system/overview');
+                const data = await response.json();
+                
+                const content = document.getElementById('system-overview-content');
+                content.innerHTML = `
+                    <div class="metric">
+                        <span class="metric-label">系統狀態</span>
+                        <span class="metric-value">
+                            <span class="status-indicator status-${data.status === 'healthy' ? 'running' : 'error'}"></span>
+                            ${data.status === 'healthy' ? '正常' : '異常'}
+                        </span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">運行時間</span>
+                        <span class="metric-value">${data.uptime || '未知'}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">活動服務</span>
+                        <span class="metric-value">${data.active_services || 0} / ${data.total_services || 0}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">活動告警</span>
+                        <span class="metric-value">${data.active_alerts || 0}</span>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('載入系統概覽失敗:', error);
+                document.getElementById('system-overview-content').innerHTML = 
+                    '<div class="loading">載入失敗，請稍後重試</div>';
+            }
+        }
+
+        // 載入服務狀態
+        async function loadServices() {
+            try {
+                const response = await fetch('/api/services/status');
+                const data = await response.json();
+                
+                const content = document.getElementById('services-content');
+                let servicesHtml = '';
+                
+                if (data.services && data.services.length > 0) {
+                    data.services.forEach(service => {
+                        const statusClass = service.status === 'running' ? 'running' : 
+                                          service.status === 'error' ? 'error' : 'warning';
+                        const statusText = service.status === 'running' ? '運行中' : 
+                                         service.status === 'error' ? '錯誤' : '警告';
+                        
+                        servicesHtml += `
+                            <div class="service-item">
+                                <div class="service-name">${service.name}</div>
+                                <div class="service-status">
+                                    <span class="status-indicator status-${statusClass}"></span>
+                                    ${statusText}
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    servicesHtml = '<div class="loading">暫無服務資訊</div>';
+                }
+                
+                content.innerHTML = servicesHtml;
+            } catch (error) {
+                console.error('載入服務狀態失敗:', error);
+                document.getElementById('services-content').innerHTML = 
+                    '<div class="loading">載入失敗，請稍後重試</div>';
+            }
+        }
+
+        // 載入資源監控
+        async function loadResourceMonitor() {
+            try {
+                const response = await fetch('/api/system/resources');
+                const data = await response.json();
+                
+                const content = document.getElementById('resource-content');
+                content.innerHTML = `
+                    <div class="metric">
+                        <span class="metric-label">CPU 使用率</span>
+                        <span class="metric-value">${data.cpu_percent || 0}%</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${data.cpu_percent || 0}%"></div>
+                        </div>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">記憶體使用率</span>
+                        <span class="metric-value">${data.memory_percent || 0}%</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${data.memory_percent || 0}%"></div>
+                        </div>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">磁碟使用率</span>
+                        <span class="metric-value">${data.disk_percent || 0}%</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${data.disk_percent || 0}%"></div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('載入資源監控失敗:', error);
+                document.getElementById('resource-content').innerHTML = 
+                    '<div class="loading">載入失敗，請稍後重試</div>';
+            }
+        }
+
+        // 載入告警資訊
+        async function loadAlerts() {
+            try {
+                const response = await fetch('/api/alerts');
+                const data = await response.json();
+                
+                const content = document.getElementById('alerts-content');
+                let alertsHtml = '';
+                
+                if (data.alerts && data.alerts.length > 0) {
+                    data.alerts.forEach(alert => {
+                        alertsHtml += `
+                            <div class="alert-item">
+                                <div class="alert-time">${alert.timestamp}</div>
+                                <div class="alert-message">${alert.message}</div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    alertsHtml = '<div class="loading">暫無告警資訊</div>';
+                }
+                
+                content.innerHTML = alertsHtml;
+            } catch (error) {
+                console.error('載入告警資訊失敗:', error);
+                document.getElementById('alerts-content').innerHTML = 
+                    '<div class="loading">載入失敗，請稍後重試</div>';
+            }
+        }
+
+        // 刷新服務狀態
+        function refreshServices() {
+            loadServices();
+        }
+
+        // 頁面卸載時清除定時器
+        window.addEventListener('beforeunload', function() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        });
+    </script>
+</body>
+</html>
+
